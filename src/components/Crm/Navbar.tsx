@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Menu, Bell, Sun, Moon, Settings, LogOut } from "lucide-react";
-import profile from '../Admin/images.jpeg';
+import profile from './Admin/images.jpeg';
 import { useNavigate } from "react-router-dom";
 
 // Add UserRole type definition
