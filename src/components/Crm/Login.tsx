@@ -61,7 +61,7 @@ export default function CrmLogin() {
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3')] bg-cover bg-center mix-blend-overlay opacity-10"></div>
         <div className="relative w-full flex flex-col items-center justify-center p-12 text-white">
-          <h1 className="text-5xl font-bold mb-6">Welcome to E-Rickshaw</h1>
+          <h1 className="text-5xl font-bold mb-6">Welcome to Vaishali Traders</h1>
           <p className="text-xl text-blue-100 max-w-md text-center">
             Access your dashboard to manage tasks, track progress, and grow your business.
           </p>

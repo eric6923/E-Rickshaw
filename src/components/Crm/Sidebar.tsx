@@ -70,7 +70,7 @@ export default function Sidebar({
         <Link to={roleBasePath} className="flex items-center">
           {/* <img className="h-7 w-6" src={profile} alt="" /> */}
           <span className="ml-3 text-xl font-bold text-blue-600 dark:text-white">
-            E-Rikshaw
+            Vaishali Traders
           </span>
         </Link>
         <button
