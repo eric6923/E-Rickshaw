@@ -56,7 +56,7 @@ export default function Sidebar({
         {
           title: "Reports",
           icon: <FileText size={18} />,
-          path: `/crm/admin/reports`
+          path: `/crm/admin/reports/default`
         }
       ]
     },
@@ -66,11 +66,12 @@ export default function Sidebar({
       mainPath: `${roleBasePath}/contacts`,
       subLinks: [
         {
-          title: "Contacts",
+          title: "Logs",
+          icon: <FolderOpen size={18} />,
           path: `${roleBasePath}/contacts`
         },
         {
-          title: "Loan Reports",
+          title: "Reports",
           icon: <FileText size={18} />,
           path: `/crm/admin/reports/loans`
         }
