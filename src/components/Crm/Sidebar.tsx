@@ -56,7 +56,7 @@ export default function Sidebar({
         {
           title: "Reports",
           icon: <FileText size={18} />,
-          path: `/crm/admin/reports/defaulters`
+          path: `/crm/admin/reports`
         }
       ]
     },

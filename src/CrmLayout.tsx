@@ -20,6 +20,7 @@ import SettingsManager from "./components/Crm/Manager/SettingsManager";
 import PropsalGeneration from "./components/Crm/Admin/PropsalGeneration";
 import InvoiceGeneration from "./components/Crm/Admin/InvoiceGeneration";
 import Contract from "./components/Crm/Admin/Contract";
+import DefaulterReport from "./components/Crm/Admin/DefaulterReport";
 
 interface LayoutProps {
   darkMode: boolean;
@@ -91,6 +92,7 @@ const CrmRoutes = ({ darkMode, setDarkMode }: LayoutProps) => {
               {/* Admin Routes */}
               <Route path="/admin" element={<Dashboard />} />
               <Route path="/admin/clients" element={<AdminClientManagement />} />
+              <Route path="/admin/reports" element={<DefaulterReport />} />
               <Route path="/admin/contacts" element={<AdminContactManagement />} />
               <Route path="/admin/projects" element={<AdminProjectManagement />} />
               <Route path="/admin/tasks" element={<AdminTaskManagement />} />
