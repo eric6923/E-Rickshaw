@@ -7,7 +7,9 @@ import {
   Users, 
   ChevronDown,
   ChevronRight,
-  FileText 
+  FileText, 
+  AlertTriangle,
+  FolderOpen
 } from "lucide-react";
 
 interface SidebarProps {
@@ -47,7 +49,8 @@ export default function Sidebar({
       mainPath: `${roleBasePath}/clients`,
       subLinks: [
         {
-          title: "Data",
+          title: "Logs",
+          icon: <FolderOpen size={18} />,
           path: `${roleBasePath}/clients`
         },
         {
