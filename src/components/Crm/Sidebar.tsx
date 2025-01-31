@@ -1,20 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import profile from "../Admin/assets/assets/profile.png";
+import { useEffect, useState } from "react";
 import { 
   LayoutDashboard, 
-  Settings, 
   LogOut, 
   X, 
-  Briefcase,
   Users, 
-  ClipboardList, 
-  CheckSquare, 
-  HandHelping,
-  ShieldCheck,
-  ReceiptText,
-  UserCogIcon,
-  UserCheck
+  ChevronDown,
+  ChevronRight,
+  FileText 
 } from "lucide-react";
 
 interface SidebarProps {
@@ -31,6 +24,7 @@ export default function Sidebar({
   userRole = "team",
 }: SidebarProps) {
   const navigate = useNavigate();
+  const [openSection, setOpenSection] = useState<string | null>(null);
   
   useEffect(() => {
     if (sidebarOpen) {
@@ -46,18 +40,44 @@ export default function Sidebar({
 
   const roleBasePath = `/crm/${userRole}`;
 
-  const managementLinks = (userRole === 'admin' || userRole === 'manager') && [
+  const managementSections = (userRole === 'admin' || userRole === 'manager') && [
     {
       title: "Defaulter Management",
       icon: <Users size={20} />,
-      path: `${roleBasePath}/clients`
+      mainPath: `${roleBasePath}/clients`,
+      subLinks: [
+        {
+          title: "Data",
+          path: `${roleBasePath}/clients`
+        },
+        {
+          title: "Reports",
+          icon: <FileText size={18} />,
+          path: `/crm/admin/reports/defaulters`
+        }
+      ]
     },
     {
       title: "Loan Management",
       icon: <Users size={20} />,
-      path: `${roleBasePath}/contacts`
-    },
+      mainPath: `${roleBasePath}/contacts`,
+      subLinks: [
+        {
+          title: "Contacts",
+          path: `${roleBasePath}/contacts`
+        },
+        {
+          title: "Loan Reports",
+          icon: <FileText size={18} />,
+          path: `/crm/admin/reports/loans`
+        }
+      ]
+    }
   ];
+
+  const toggleSection = (title: string) => {
+    setOpenSection(openSection === title ? null : title);
+  };
 
   return (
     <aside
@@ -68,7 +88,6 @@ export default function Sidebar({
       {/* Header */}
       <div className="flex items-center justify-between p-6 h-16 mt-6">
         <Link to={roleBasePath} className="flex items-center">
-          {/* <img className="h-7 w-6" src={profile} alt="" /> */}
           <span className="ml-3 text-xl font-bold text-blue-600 dark:text-white">
             Vaishali Traders
           </span>
@@ -96,35 +115,46 @@ export default function Sidebar({
           <span className="ml-3 font-medium">Dashboard</span>
         </Link>
 
-        {/* Management Links - Added responsive spacing */}
-        {managementLinks && managementLinks.map((link) => (
-          <Link
-            key={link.title}
-            to={link.path}
-            className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors mb-1.5 lg:mb-2 ${
-              currentPath === link.path
-                ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                : "text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700"
-            }`}
-            onClick={() => setSidebarOpen(false)}
-          >
-            {link.icon}
-            <span className="ml-3 font-medium">{link.title}</span>
-          </Link>
+        {/* Management Sections with Nested Links */}
+        {managementSections && managementSections.map((section) => (
+          <div key={section.title} className="mb-2">
+            <div 
+              onClick={() => toggleSection(section.title)}
+              className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors cursor-pointer ${
+                currentPath === section.mainPath
+                  ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                  : "text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700"
+              }`}
+            >
+              {section.icon}
+              <span className="ml-3 font-medium grow">{section.title}</span>
+              {openSection === section.title ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+            </div>
+
+            {openSection === section.title && (
+              <div className="pl-6 mt-1">
+                {section.subLinks.map((link) => (
+                  <Link
+                    key={link.title}
+                    to={link.path}
+                    className={`flex items-center w-full p-2 rounded-lg transition-colors mb-1 ${
+                      currentPath === link.path
+                        ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700"
+                    }`}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    {link.icon || <div className="w-5 h-5 opacity-0" />}
+                    <span className="ml-3 font-medium text-sm">{link.title}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         ))}
 
         {/* Bottom Actions */}
         <div className="fixed bottom-0 left-0 w-[280px] p-3 lg:p-4 border-gray-200 bg-white dark:bg-gray-800">
-            {/* <button
-              onClick={() => {
-                setSidebarOpen(false);
-                navigate(`/crm/${userRole}/settings`);
-              }}
-              className="flex items-center w-full p-2.5 lg:p-3 text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg"
-            >
-              <UserCheck size={20} />
-              <span className="ml-3">Team Management</span>
-            </button> */}
           <button
             onClick={() => {
               localStorage.removeItem("crmAuthenticated");
