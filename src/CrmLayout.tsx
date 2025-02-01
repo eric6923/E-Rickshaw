@@ -13,6 +13,15 @@ import Settings from './components/Crm/Admin/Settings'
 import DefaulterReport from "./components/Crm/Admin/DefaulterReport";
 import LoanReports from "./components/Crm/Admin/LoanReports";
 
+
+import PurchaseInvoice from './components/Crm/Admin/ERickshaw/PurchaseInvoice';
+import SalesOrder from './components/Crm/Admin/ERickshaw/SalesOrder';
+import LoanFileTransfer from './components/Crm/Admin/ERickshaw/LoanFileTransfer';
+import PaymentDetails from './components/Crm/Admin/ERickshaw/PaymentDetails';
+import LoanDetails from './components/Crm/Admin/ERickshaw/LoanDetails';
+import SalesInvoice from './components/Crm/Admin/ERickshaw/SalesInvoice';
+import RcBook from './components/Crm/Admin/ERickshaw/RcBook';
+
 interface LayoutProps {
   darkMode: boolean;
   setDarkMode: (dark: boolean) => void;
@@ -88,6 +97,14 @@ const CrmRoutes = ({ darkMode, setDarkMode }: LayoutProps) => {
               <Route path="/admin/contacts" element={<AdminContactManagement />} />
               <Route path="/admin/settings" element={<Settings />} />
 
+              {/* E-Rickshaw Routes */}
+              <Route path="/admin/e-rickshaw/purchase-invoice" element={<PurchaseInvoice />} />
+              <Route path="/admin/e-rickshaw/sales-order" element={<SalesOrder />} />
+              <Route path="/admin/e-rickshaw/loan-file-transfer" element={<LoanFileTransfer />} />
+              <Route path="/admin/e-rickshaw/payment-details" element={<PaymentDetails />} />
+              <Route path="/admin/e-rickshaw/loan-details" element={<LoanDetails />} />
+              <Route path="/admin/e-rickshaw/sales-invoice" element={<SalesInvoice />} />
+              <Route path="/admin/e-rickshaw/rc-book" element={<RcBook />} />
 
               {/* Default Redirect */}
               <Route

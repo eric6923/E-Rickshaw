@@ -12,7 +12,14 @@ import {
   FolderOpen,
   HandCoins,
   Banknote,
-  Landmark
+  Landmark,
+  Truck,
+  ShoppingCart,
+  FileOutput,
+  CreditCard,
+  FileSpreadsheet,
+  FileCheck,
+  File
 } from "lucide-react";
 
 interface SidebarProps {
@@ -46,6 +53,48 @@ export default function Sidebar({
   const roleBasePath = `/crm/${userRole}`;
 
   const managementSections = (userRole === 'admin' || userRole === 'manager') && [
+    {
+      title: "E-Rickshaw",
+      icon: <Truck size={20} />,
+      mainPath: `${roleBasePath}/e-rickshaw`,
+      subLinks: [
+        {
+          title: "Purchase Invoice",
+          icon: <File size={18} />,
+          path: `${roleBasePath}/e-rickshaw/purchase-invoice`
+        },
+        {
+          title: "Sales Order",
+          icon: <ShoppingCart size={18} />,
+          path: `${roleBasePath}/e-rickshaw/sales-order`
+        },
+        {
+          title: "Loan File Transfer",
+          icon: <FileOutput size={18} />,
+          path: `${roleBasePath}/e-rickshaw/loan-file-transfer`
+        },
+        {
+          title: "Payment Details",
+          icon: <CreditCard size={18} />,
+          path: `${roleBasePath}/e-rickshaw/payment-details`
+        },
+        {
+          title: "Loan Details",
+          icon: <FileSpreadsheet size={18} />,
+          path: `${roleBasePath}/e-rickshaw/loan-details`
+        },
+        {
+          title: "Sales Invoice",
+          icon: <FileCheck size={18} />,
+          path: `${roleBasePath}/e-rickshaw/sales-invoice`
+        },
+        {
+          title: "RC Book",
+          icon: <FileCheck size={18} />,
+          path: `${roleBasePath}/e-rickshaw/rc-book`
+        }
+      ]
+    },
     {
       title: "Defaulter Management",
       icon: <Landmark size={20} />,
