@@ -7,8 +7,8 @@ import Sidebar from "./components/Crm/Sidebar";
 import Dashboard from './components/Crm/Admin/Dashboard';
 
 // Import new management components
-import AdminClientManagement from './components/Crm/Admin/ClientManagent';
-import AdminContactManagement from './components/Crm/Admin/ContactManagement';
+import AdminClientManagement from './components/Crm/Admin/DefaulterManagent';
+import AdminContactManagement from './components/Crm/Admin/LoanManagement';
 import Settings from './components/Crm/Admin/Settings'
 import DefaulterReport from "./components/Crm/Admin/DefaulterReport";
 import LoanReports from "./components/Crm/Admin/LoanReports";
