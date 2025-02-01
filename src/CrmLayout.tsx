@@ -22,6 +22,9 @@ import LoanDetails from './components/Crm/Admin/ERickshaw/LoanDetails';
 import SalesInvoice from './components/Crm/Admin/ERickshaw/SalesInvoice';
 import RcBook from './components/Crm/Admin/ERickshaw/RcBook';
 
+import BatteryPurchaseInvoice from './components/Crm/Admin/Battery/PurchaseInvoice'
+import BatterySalesInvoice from './components/Crm/Admin/Battery/SalesInvoive'
+import BatteryServiceReplacement from './components/Crm/Admin/Battery/ServiceReplacement'
 interface LayoutProps {
   darkMode: boolean;
   setDarkMode: (dark: boolean) => void;
@@ -105,6 +108,12 @@ const CrmRoutes = ({ darkMode, setDarkMode }: LayoutProps) => {
               <Route path="/admin/e-rickshaw/loan-details" element={<LoanDetails />} />
               <Route path="/admin/e-rickshaw/sales-invoice" element={<SalesInvoice />} />
               <Route path="/admin/e-rickshaw/rc-book" element={<RcBook />} />
+
+              {/* Battery Routes */}
+              <Route path="/admin/battery/purchase-invoice" element={<BatteryPurchaseInvoice />} />
+              <Route path="/admin/battery/sales-invoice" element={<BatterySalesInvoice />} />
+              <Route path="/admin/battery/service-replacement" element={<BatteryServiceReplacement />} />
+
 
               {/* Default Redirect */}
               <Route

@@ -19,7 +19,13 @@ import {
   CreditCard,
   FileSpreadsheet,
   FileCheck,
-  File
+  File,
+  DollarSign,
+  Wallet,
+  Receipt,
+  Battery,
+  BatteryCharging,
+  BatteryFull
 } from "lucide-react";
 
 interface SidebarProps {
@@ -75,23 +81,45 @@ export default function Sidebar({
         },
         {
           title: "Payment Details",
-          icon: <CreditCard size={18} />,
+          icon: <DollarSign size={18} />,
           path: `${roleBasePath}/e-rickshaw/payment-details`
         },
         {
           title: "Loan Details",
-          icon: <FileSpreadsheet size={18} />,
+          icon: <Wallet size={18} />,
           path: `${roleBasePath}/e-rickshaw/loan-details`
         },
         {
           title: "Sales Invoice",
-          icon: <FileCheck size={18} />,
+          icon: <Receipt size={18} />,
           path: `${roleBasePath}/e-rickshaw/sales-invoice`
         },
         {
           title: "RC Book",
           icon: <FileCheck size={18} />,
           path: `${roleBasePath}/e-rickshaw/rc-book`
+        }
+      ]
+    },
+    {
+      title: "Battery",
+      icon: <BatteryFull size={20} />,
+      mainPath: `${roleBasePath}/battery`,
+      subLinks: [
+        {
+          title: "Purchase Invoice",
+          icon: <File size={18} />,
+          path: `${roleBasePath}/battery/purchase-invoice`
+        },
+        {
+          title: "Sales Invoice",
+          icon: <Receipt size={18} />,
+          path: `${roleBasePath}/battery/sales-invoice`
+        },
+        {
+          title: "Service Battery Replacement",
+          icon: <FileSpreadsheet size={18} />,
+          path: `${roleBasePath}/battery/service-replacement`
         }
       ]
     },
@@ -157,7 +185,7 @@ export default function Sidebar({
       </div>
 
       {/* Navigation - Added responsive spacing */}
-      <nav className="mt-3 px-4 pb-28 lg:pb-28 overflow-y-auto">
+      <nav className="mt-5 px-4 pb-28 lg:pb-28 overflow-y-auto">
         <Link
           to={roleBasePath}
           className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors mb-1.5 lg:mb-2 ${
