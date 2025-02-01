@@ -9,7 +9,10 @@ import {
   ChevronRight,
   FileText, 
   AlertTriangle,
-  FolderOpen
+  FolderOpen,
+  HandCoins,
+  Banknote,
+  Landmark
 } from "lucide-react";
 
 interface SidebarProps {
@@ -45,7 +48,7 @@ export default function Sidebar({
   const managementSections = (userRole === 'admin' || userRole === 'manager') && [
     {
       title: "Defaulter Management",
-      icon: <Users size={20} />,
+      icon: <Landmark size={20} />,
       mainPath: `${roleBasePath}/clients`,
       subLinks: [
         {
@@ -62,7 +65,7 @@ export default function Sidebar({
     },
     {
       title: "Loan Management",
-      icon: <Users size={20} />,
+      icon: <Banknote size={20} />,
       mainPath: `${roleBasePath}/contacts`,
       subLinks: [
         {

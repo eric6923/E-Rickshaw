@@ -6,7 +6,6 @@ const Defaulter = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [defaulters, setDefaulters] = useState([]);
   
-  // New state for form fields
   const [formData, setFormData] = useState({
     customerName: '',
     fatherName: '',
@@ -25,7 +24,6 @@ const Defaulter = () => {
     loanBy: ''
   });
 
-  // Handle input changes for form
   const handleInputChange = (e:any) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -34,20 +32,18 @@ const Defaulter = () => {
     }));
   };
 
-  // Handle form submission (currently just logs the data)
   const handleSubmit = (e:any) => {
     e.preventDefault();
     console.log('Submitted Defaulter Data:', formData);
-    // You can add logic to add to defaulters list or send to backend here
     setShowAddDialog(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-8 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-800">Defaulter Management</h1>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Defaulter Management</h1>
           <div className="flex gap-4 mr-24">
             <div className="relative">
               <input
@@ -55,7 +51,7 @@ const Defaulter = () => {
                 placeholder="Search defaulters..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all"
               />
               <Search className="absolute left-3 top-2.5 text-gray-400 h-5 w-5" />
             </div>
@@ -74,33 +70,33 @@ const Defaulter = () => {
         </div>
 
         {/* Table Section */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden ">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
           <div className="max-w-full overflow-x-auto">
             <table className="w-full min-w-[2000px]">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">S.No</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Customer Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Father Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">RikShaw Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Chasis Number</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Pending Amount</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Branch</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Sale By</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Register Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Customer Address</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Mobile 1st</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Mobile 2nd</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Sale Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Due Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">Bank Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap w-44">Loan By</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">S.No</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Customer Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Father Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">RikShaw Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Chasis Number</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Pending Amount</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Branch</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Sale By</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Register Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Customer Address</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Mobile 1st</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Mobile 2nd</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Sale Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Due Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap">Bank Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 whitespace-nowrap w-44">Loan By</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {defaulters.length === 0 ? (
                   <tr>
-                    <td colSpan="16" className="text-center py-4 text-gray-500">
+                    <td colSpan="16" className="text-center py-4 text-gray-500 dark:text-gray-400">
                       No defaulters found
                     </td>
                   </tr>
@@ -119,172 +115,172 @@ const Defaulter = () => {
         {/* Add Defaulter Dialog */}
         {showAddDialog && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-lg w-[900px] max-h-[90vh] overflow-y-auto relative">
+            <div className="bg-white dark:bg-gray-800 p-8 rounded-lg w-[900px] max-h-[90vh] overflow-y-auto relative">
               <button 
                 onClick={() => setShowAddDialog(false)}
-                className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
+                className="absolute top-4 right-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
               >
                 <X className="h-6 w-6" />
               </button>
-              <h2 className="text-2xl font-bold mb-6 text-gray-800">Add New Defaulter</h2>
+              <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">Add New Defaulter</h2>
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Customer Name</label>
                     <input
                       type="text"
                       name="customerName"
                       value={formData.customerName}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Father Name</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Father Name</label>
                     <input
                       type="text"
                       name="fatherName"
                       value={formData.fatherName}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">RikShaw Name</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RikShaw Name</label>
                     <input
                       type="text"
                       name="rikshawName"
                       value={formData.rikshawName}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Chasis Number</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Chasis Number</label>
                     <input
                       type="text"
                       name="chasisNumber"
                       value={formData.chasisNumber}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Pending Amount</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pending Amount</label>
                     <input
                       type="text"
                       name="pendingAmount"
                       value={formData.pendingAmount}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Branch</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Branch</label>
                     <input
                       type="text"
                       name="branch"
                       value={formData.branch}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sale By</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sale By</label>
                     <input
                       type="text"
                       name="saleBy"
                       value={formData.saleBy}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Register Name</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Register Name</label>
                     <input
                       type="text"
                       name="registerName"
                       value={formData.registerName}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Customer Address</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Customer Address</label>
                     <input
                       type="text"
                       name="customerAddress"
                       value={formData.customerAddress}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mobile 1st</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mobile 1st</label>
                     <input
                       type="text"
                       name="mobile1st"
                       value={formData.mobile1st}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mobile 2nd</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mobile 2nd</label>
                     <input
                       type="text"
                       name="mobile2nd"
                       value={formData.mobile2nd}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sale Date</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sale Date</label>
                     <input
                       type="date"
                       name="saleDate"
                       value={formData.saleDate}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
                     <input
                       type="date"
                       name="dueDate"
                       value={formData.dueDate}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bank Name</label>
                     <input
                       type="text"
                       name="bankName"
                       value={formData.bankName}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Loan By</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Loan By</label>
                     <input
                       type="text"
                       name="loanBy"
                       value={formData.loanBy}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
                 <div className="mt-6 flex justify-end space-x-4">
-                <button 
+                  <button 
                     type="button"
                     onClick={() => setShowAddDialog(false)}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                   >
                     Cancel
                   </button>
