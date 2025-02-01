@@ -3,23 +3,13 @@ import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import CrmLogin from './components/Crm/Login';
 import Navbar from './components/Crm/Navbar';
 import Sidebar from "./components/Crm/Sidebar";
-import DashboardManager from "./components/Crm/Manager/DashboardManager";
+
 import Dashboard from './components/Crm/Admin/Dashboard';
 
 // Import new management components
 import AdminClientManagement from './components/Crm/Admin/ClientManagent';
 import AdminContactManagement from './components/Crm/Admin/ContactManagement';
-import AdminProjectManagement from './components/Crm/Admin/ProjectManagement';
-import AdminTaskManagement from './components/Crm/Admin/TaskManagement';
 import Settings from './components/Crm/Admin/Settings'
-import ManagerClientManagement from './components/Crm/Manager/ClientManagement';
-import ManagerContactManagement from './components/Crm/Manager/ContactManagement';
-import ManagerProjectManagement from './components/Crm/Manager/ProjectManagement';
-import ManagerTaskManagement from './components/Crm/Manager/TaskManagement';
-import SettingsManager from "./components/Crm/Manager/SettingsManager";
-import PropsalGeneration from "./components/Crm/Admin/PropsalGeneration";
-import InvoiceGeneration from "./components/Crm/Admin/InvoiceGeneration";
-import Contract from "./components/Crm/Admin/Contract";
 import DefaulterReport from "./components/Crm/Admin/DefaulterReport";
 import LoanReports from "./components/Crm/Admin/LoanReports";
 
@@ -95,25 +85,9 @@ const CrmRoutes = ({ darkMode, setDarkMode }: LayoutProps) => {
               <Route path="/admin/clients" element={<AdminClientManagement />} />
               <Route path="/admin/reports/default" element={<DefaulterReport />} />
               <Route path="/admin/reports/loans" element={<LoanReports />} />
-
-
               <Route path="/admin/contacts" element={<AdminContactManagement />} />
-              <Route path="/admin/projects" element={<AdminProjectManagement />} />
-              <Route path="/admin/tasks" element={<AdminTaskManagement />} />
-              <Route path="/admin/proposal" element={<PropsalGeneration />} />
-              <Route path="/admin/invoice" element={<InvoiceGeneration />} />
-              <Route path="/admin/contract" element={<Contract />} />
               <Route path="/admin/settings" element={<Settings />} />
 
-              {/* Manager Routes */}
-              <Route path="/manager" element={<DashboardManager />} />
-              <Route path="/manager/clients" element={<ManagerClientManagement />} />
-              <Route path="/manager/contacts" element={<ManagerContactManagement />} />
-              <Route path="/manager/projects" element={<ManagerProjectManagement />} />
-              <Route path="/manager/tasks" element={<ManagerTaskManagement />} />
-              <Route path="/manager/settings" element={<SettingsManager />} />
-
-              {/* Team Routes */}
 
               {/* Default Redirect */}
               <Route
