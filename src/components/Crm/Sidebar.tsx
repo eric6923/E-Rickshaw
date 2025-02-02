@@ -25,7 +25,10 @@ import {
   Receipt,
   Battery,
   BatteryCharging,
-  BatteryFull
+  BatteryFull,
+  Settings,
+  Wrench,
+  Package
 } from "lucide-react";
 
 interface SidebarProps {
@@ -66,7 +69,7 @@ export default function Sidebar({
       subLinks: [
         {
           title: "Purchase Invoice",
-          icon: <File size={18} />,
+          icon: <FileText size={18} />,
           path: `${roleBasePath}/e-rickshaw/purchase-invoice`
         },
         {
@@ -108,7 +111,7 @@ export default function Sidebar({
       subLinks: [
         {
           title: "Purchase Invoice",
-          icon: <File size={18} />,
+          icon: <FileText size={18} />,
           path: `${roleBasePath}/battery/purchase-invoice`
         },
         {
@@ -120,6 +123,28 @@ export default function Sidebar({
           title: "Service Battery Replacement",
           icon: <FileSpreadsheet size={18} />,
           path: `${roleBasePath}/battery/service-replacement`
+        }
+      ]
+    },
+    {
+      title: "Spares & Services",
+      icon: <Wrench size={20} />,
+      mainPath: `${roleBasePath}/spares-services`,
+      subLinks: [
+        {
+          title: "Inventory",
+          icon: <Package size={18} />,
+          path: `${roleBasePath}/spares-services/inventory`
+        },
+        {
+          title: "Purchase Invoice",
+          icon: <FileText size={18} />,
+          path: `${roleBasePath}/spares-services/purchase-invoice`
+        },
+        {
+          title: "Job Card",
+          icon: <FileSpreadsheet size={18} />,
+          path: `${roleBasePath}/spares-services/job-card`
         }
       ]
     },
