@@ -28,7 +28,9 @@ import {
   BatteryFull,
   Settings,
   Wrench,
-  Package
+  Package,
+  CarFront,
+  Files
 } from "lucide-react";
 
 interface SidebarProps {
@@ -67,6 +69,21 @@ export default function Sidebar({
       icon: <Truck size={20} />,
       mainPath: `${roleBasePath}/e-rickshaw`,
       subLinks: [
+        {
+          title: "Document",
+          icon: <Files size={18} />,
+          path: `${roleBasePath}/e-rickshaw/document`
+        },
+        {
+          title: "Quotation",
+          icon: <Receipt size={18} />,
+          path: `${roleBasePath}/e-rickshaw/quotation`
+        },
+        {
+          title: "Temporary Driving",
+          icon: <CarFront size={18} />,
+          path: `${roleBasePath}/e-rickshaw/temporarydriving`
+        },
         {
           title: "Purchase Invoice",
           icon: <FileText size={18} />,

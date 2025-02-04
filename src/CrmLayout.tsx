@@ -29,6 +29,9 @@ import BatteryServiceReplacement from './components/Crm/Admin/Battery/ServiceRep
 import Inventory from "./components/Crm/Admin/Spares&Services/Inventory";
 import PurchaseInvoiceSpares from './components/Crm/Admin/Spares&Services/PurchaseInvoiceSpares'
 import JobCard from "./components/Crm/Admin/Spares&Services/JobCard";
+import Documents from "./components/Crm/Admin/ERickshaw/Document";
+import Quotation from "./components/Crm/Admin/ERickshaw/Quotation";
+import TemporaryDriving from "./components/Crm/Admin/ERickshaw/TemporaryDriving";
 
 interface LayoutProps {
   darkMode: boolean;
@@ -106,6 +109,9 @@ const CrmRoutes = ({ darkMode, setDarkMode }: LayoutProps) => {
               <Route path="/admin/settings" element={<Settings />} />
 
               {/* E-Rickshaw Routes */}
+              <Route path="/admin/e-rickshaw/document" element={<Documents />} />
+              <Route path="/admin/e-rickshaw/quotation" element={<Quotation />} />
+              <Route path="/admin/e-rickshaw/temporarydriving" element={<TemporaryDriving />} />
               <Route path="/admin/e-rickshaw/purchase-invoice" element={<PurchaseInvoice />} />
               <Route path="/admin/e-rickshaw/sales-order" element={<SalesOrder />} />
               <Route path="/admin/e-rickshaw/loan-file-transfer" element={<LoanFileTransfer />} />
