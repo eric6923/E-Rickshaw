@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Plus, Search, X, FileText, ClipboardList } from 'lucide-react';
+import { Download, Plus, Search, X, FileText, Eye, Pencil, Trash2 } from 'lucide-react';
 
 interface DocumentData {
   id?: string;
@@ -8,22 +8,24 @@ interface DocumentData {
   panCard: string;
   homeLocation: string;
   voterIdOrDL: string;
-  salesInvoiceWithDS: File | string;
-  batterySaleInvoice: File | string;
-  salesCertificateWithDS: File | string;
-  insurance: File | string;
-  livePhoto: File | string;
-  signaturePhoto: File | string;
+  salesInvoiceWithDS: string;
+  batterySaleInvoice: string;
+  salesCertificateWithDS: string;
+  insurance: string;
+  livePhoto: string;
+  signaturePhoto: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
 const Documents = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [documents, setDocuments] = useState<DocumentData[]>([]);
+  const [documentRecords, setDocumentRecords] = useState<DocumentData[]>([]);
   const [loading, setLoading] = useState(false);
-  
+  const [selectedRecord, setSelectedRecord] = useState<DocumentData | null>(null);
+
   const [formData, setFormData] = useState<DocumentData>({
     customerName: '',
     aadharCard: '',
@@ -38,65 +40,84 @@ const Documents = () => {
     signaturePhoto: ''
   });
 
-  const fetchDocuments = async () => {
+  const uploadToCloudinary = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'E-Rickshaw');
+
     try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dm8jxispy/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+      const data = await response.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error('Error uploading to Cloudinary:', error);
+      return null;
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: keyof DocumentData) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = await uploadToCloudinary(file);
+      if (imageUrl) {
+        setFormData(prev => ({
+          ...prev,
+          [fieldName]: imageUrl
+        }));
+      }
+    }
+  };
+
+  const handleImageView = (imageUrl: string) => {
+    if (imageUrl) {
+      window.open(imageUrl, '_blank');
+    }
+  };
+
+  const fetchRecords = async () => {
+    try {
+      setLoading(true);
       const response = await fetch('https://dataentry-one.vercel.app/rickshaw/document');
       const data = await response.json();
-      setDocuments(data);
+      setDocumentRecords(data);
     } catch (error) {
-      console.error('Error fetching documents:', error);
+      console.error('Error fetching records:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDocuments();
+    fetchRecords();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target;
-    if (type === 'file') {
-      const file = e.target.files?.[0];
-      if (file) {
-        setFormData(prevState => ({
-          ...prevState,
-          [name]: file
-        }));
-      }
-    } else {
-      setFormData(prevState => ({
-        ...prevState,
-        [name]: value
-      }));
-    }
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name as keyof DocumentData]: value
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
     try {
       const response = await fetch('https://dataentry-one.vercel.app/rickshaw/document', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          customerName: formData.customerName,
-          aadharCard: formData.aadharCard,
-          panCard: formData.panCard,
-          homeLocation: formData.homeLocation,
-          voterIdOrDL: formData.voterIdOrDL,
-          salesInvoiceWithDS: formData.salesInvoiceWithDS instanceof File ? formData.salesInvoiceWithDS.name : formData.salesInvoiceWithDS,
-          batterySaleInvoice: formData.batterySaleInvoice instanceof File ? formData.batterySaleInvoice.name : formData.batterySaleInvoice,
-          salesCertificateWithDS: formData.salesCertificateWithDS instanceof File ? formData.salesCertificateWithDS.name : formData.salesCertificateWithDS,
-          insurance: formData.insurance instanceof File ? formData.insurance.name : formData.insurance,
-          livePhoto: formData.livePhoto instanceof File ? formData.livePhoto.name : formData.livePhoto,
-          signaturePhoto: formData.signaturePhoto instanceof File ? formData.signaturePhoto.name : formData.signaturePhoto,
-        }),
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        await fetchDocuments();
+        await fetchRecords();
         setShowAddDialog(false);
         setFormData({
           customerName: '',
@@ -111,59 +132,278 @@ const Documents = () => {
           livePhoto: '',
           signaturePhoto: ''
         });
+      } else {
+        console.error('Failed to create record');
       }
     } catch (error) {
-      console.error('Error creating document:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error creating record:', error);
     }
   };
 
-  const filteredDocuments = documents.filter(doc => 
-    doc.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doc.aadharCard.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doc.panCard.toLowerCase().includes(searchTerm.toLowerCase())
+  const handleEdit = (record: DocumentData) => {
+    setSelectedRecord(record);
+    setFormData(record);
+    setShowEditDialog(true);
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedRecord?.id) return;
+
+    try {
+      const response = await fetch(`https://dataentry-one.vercel.app/rickshaw/document/${selectedRecord.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        await fetchRecords();
+        setShowEditDialog(false);
+        setSelectedRecord(null);
+        setFormData({
+          customerName: '',
+          aadharCard: '',
+          panCard: '',
+          homeLocation: '',
+          voterIdOrDL: '',
+          salesInvoiceWithDS: '',
+          batterySaleInvoice: '',
+          salesCertificateWithDS: '',
+          insurance: '',
+          livePhoto: '',
+          signaturePhoto: ''
+        });
+      } else {
+        console.error('Failed to update record');
+      }
+    } catch (error) {
+      console.error('Error updating record:', error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this record?')) {
+      try {
+        const response = await fetch(`https://dataentry-one.vercel.app/rickshaw/document/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          await fetchRecords();
+        } else {
+          console.error('Failed to delete record');
+        }
+      } catch (error) {
+        console.error('Error deleting record:', error);
+      }
+    }
+  };
+
+  const FileUploadField = ({ label, name, value }: { label: string; name: keyof DocumentData; value: string }) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
+      <div className="flex items-center gap-2">
+        <input
+          type="file"
+          onChange={(e) => handleFileUpload(e, name)}
+          className="hidden"
+          id={`file-${name}`}
+          accept="image/*"
+        />
+        <label
+          htmlFor={`file-${name}`}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
+        >
+          {value ? 'Change File' : 'Choose File'}
+        </label>
+        {value && (
+          <button
+            type="button"
+            onClick={() => handleImageView(value)}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2"
+          >
+            <Eye className="h-4 w-4" />
+            View
+          </button>
+        )}
+      </div>
+      {value && <p className="mt-1 text-sm text-gray-500 truncate">{value}</p>}
+    </div>
+  );
+
+  const filteredRecords = documentRecords.filter(record =>
+    Object.values(record).some(value =>
+      String(value).toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
+  const DialogForm = ({ onSubmit, title }: { onSubmit: (e: React.FormEvent) => Promise<void>, title: string }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[600px] max-h-[90vh] overflow-y-auto relative">
+        <button
+          onClick={() => {
+            setShowAddDialog(false);
+            setShowEditDialog(false);
+            setSelectedRecord(null);
+          }}
+          className="absolute top-4 right-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+        >
+          <X className="h-6 w-6" />
+        </button>
+        <div className="flex items-center gap-3 mb-6">
+          <FileText className="h-6 w-6 text-amber-600 dark:text-amber-500" />
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{title}</h2>
+        </div>
+        <form onSubmit={onSubmit}>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Customer Name</label>
+              <input
+                type="text"
+                name="customerName"
+                value={formData.customerName}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Aadhar Card</label>
+              <input
+                type="text"
+                name="aadharCard"
+                value={formData.aadharCard}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pan Card</label>
+              <input
+                type="text"
+                name="panCard"
+                value={formData.panCard}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Home Location</label>
+              <input
+                type="text"
+                name="homeLocation"
+                value={formData.homeLocation}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Voter's ID/DL</label>
+              <input
+                type="text"
+                name="voterIdOrDL"
+                value={formData.voterIdOrDL}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+
+            <FileUploadField
+              label="Sales Invoice with DS"
+              name="salesInvoiceWithDS"
+              value={formData.salesInvoiceWithDS}
+            />
+            <FileUploadField
+              label="Battery Sale Invoice"
+              name="batterySaleInvoice"
+              value={formData.batterySaleInvoice}
+            />
+            <FileUploadField
+              label="Sales Certificate with DS"
+              name="salesCertificateWithDS"
+              value={formData.salesCertificateWithDS}
+            />
+            <FileUploadField
+              label="Insurance"
+              name="insurance"
+              value={formData.insurance}
+            />
+            <FileUploadField
+              label="Live Photo"
+              name="livePhoto"
+              value={formData.livePhoto}
+            />
+            <FileUploadField
+              label="Signature Photo"
+              name="signaturePhoto"
+              value={formData.signaturePhoto}
+            />
+          </div>
+          <div className="mt-6 flex justify-end space-x-4">
+            <button 
+              type="button"
+              onClick={() => {
+                setShowAddDialog(false);
+                setShowEditDialog(false);
+                setSelectedRecord(null);
+              }}
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit"
+              className="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
+            >
+              {showEditDialog ? 'Update Record' : 'Add Record'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto px-4 space-y-8 max-w-[1400px]">
       {/* Header Section */}
       <div className="flex flex-col gap-8">
         <div className="flex items-center gap-4">
-          <div className="bg-purple-600 dark:bg-purple-500 p-3 rounded-xl">
+          <div className="bg-blue-600 dark:bg-blue-500 p-3 rounded-xl">
             <FileText className="h-8 w-8 text-white" />
           </div>
           <div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Documents</h1>
-            <p className="mt-1 text-gray-500 dark:text-gray-400">Manage customer documents and records</p>
+            <p className="mt-1 text-gray-500 dark:text-gray-400">Manage document records</p>
           </div>
         </div>
 
         {/* Action Buttons and Search */}
-        <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 mr-64">
+        <div className="flex flex-col sm:flex-row justify-end items-center gap-4 mr-44">
           <div className="w-full sm:w-[39%]">
-            <div className="relative ml-28">
+            <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
-                placeholder="Search documents..."
+                placeholder="Search records..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
           </div>
           <div className="flex gap-4">
-            <button className="flex items-center gap-2 bg-purple-600 dark:bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors">
+            <button className="flex items-center gap-2 bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-amber-700 dark:hover:bg-amber-600 transition-colors">
               <Download className="h-5 w-5" />
               Download
             </button>
-            <button 
+            <button
               onClick={() => setShowAddDialog(true)}
               className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
             >
               <Plus className="h-5 w-5" />
-              Add Documents
+              Add Record
             </button>
           </div>
         </div>
@@ -171,47 +411,132 @@ const Documents = () => {
 
       {/* Table Section */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+          <table className="w-full table-auto">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Customer Name</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Customer Name</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aadhar Card</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pan Card</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Home Location</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Voter's ID/DL</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sales Invoice</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Battery Sales Invoice</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sales Certificates</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Insurance</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Live Photo</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Signature</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Pan Card</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Home Location</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Voter's ID/DL</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Sales Invoice</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Battery Invoice</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Sales Certificate</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Insurance</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Live Photo</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Signature Photo</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-[275px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredDocuments.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan={11} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={12} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    Loading...
+                  </td>
+                </tr>
+              ) : filteredRecords.length === 0 ? (
+                <tr>
+                  <td colSpan={12} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                     <div className="flex flex-col items-center gap-2">
-                      <ClipboardList className="h-8 w-8 text-gray-400 dark:text-gray-500" />
-                      <p>No documents found</p>
+                      <FileText className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                      <p>No records found</p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                filteredDocuments.map((doc) => (
-                  <tr key={doc.id} className="text-gray-900 dark:text-gray-300">
-                    <td className="px-6 py-4 whitespace-nowrap">{doc.customerName}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{doc.aadharCard}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{doc.panCard}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{doc.homeLocation}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{doc.voterIdOrDL}</td>
-                    {/* <td className="px-6 py-4 whitespace-nowrap">{doc.salesInvoiceWithDS}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{doc.batterySaleInvoice}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{doc.salesCertificateWithDS}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{doc.insurance}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{doc.livePhoto}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{doc.signaturePhoto}</td> */}
+                filteredRecords.map((record) => (
+                  <tr key={record.id} className="text-gray-900 dark:text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap">{record.customerName}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{record.aadharCard}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{record.panCard}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{record.homeLocation}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{record.voterIdOrDL}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {record.salesInvoiceWithDS && (
+                        <button
+                          onClick={() => handleImageView(record.salesInvoiceWithDS)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {record.batterySaleInvoice && (
+                        <button
+                          onClick={() => handleImageView(record.batterySaleInvoice)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {record.salesCertificateWithDS && (
+                        <button
+                          onClick={() => handleImageView(record.salesCertificateWithDS)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {record.insurance && (
+                        <button
+                          onClick={() => handleImageView(record.insurance)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {record.livePhoto && (
+                        <button
+                          onClick={() => handleImageView(record.livePhoto)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {record.signaturePhoto && (
+                        <button
+                          onClick={() => handleImageView(record.signaturePhoto)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEdit(record)}
+                          className="text-blue-600 hover:text-blue-800"
+                          title="Edit"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => record.id && handleDelete(record.id)}
+                          className="text-red-600 hover:text-red-800"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
@@ -220,171 +545,12 @@ const Documents = () => {
         </div>
       </div>
 
-      {/* Add Documents Dialog */}
-      {showAddDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[600px] max-h-[90vh] overflow-y-auto relative">
-            <button 
-              onClick={() => setShowAddDialog(false)}
-              className="absolute top-4 right-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-            >
-              <X className="h-6 w-6" />
-            </button>
-            <div className="flex items-center gap-3 mb-6">
-              <FileText className="h-6 w-6 text-purple-600 dark:text-purple-500" />
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Add New Documents</h2>
-            </div>
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 gap-4">
-                {/* Text inputs */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Customer Name
-                  </label>
-                  <input
-                    type="text"
-                    name="customerName"
-                    value={formData.customerName}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Aadhar Card
-                  </label>
-                  <input
-                    type="text"
-                    name="aadharCard"
-                    value={formData.aadharCard}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Pan Card
-                  </label>
-                  <input
-                    type="text"
-                    name="panCard"
-                    value={formData.panCard}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Home Location
-                  </label>
-                  <input
-                    type="text"
-                    name="homeLocation"
-                    value={formData.homeLocation}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Voter's ID/DL
-                  </label>
-                  <input
-                    type="text"
-                    name="voterIdOrDL"
-                    value={formData.voterIdOrDL}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-
-                {/* File inputs */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Sales Invoice with DS
-                  </label>
-                  <input
-                    type="file"
-                    name="salesInvoiceWithDS"
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Battery Sale Invoice
-                  </label>
-                  <input
-                    type="file"
-                    name="batterySaleInvoice"
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Sales Certificate with DS
-                  </label>
-                  <input
-                    type="file"
-                    name="salesCertificateWithDS"
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Insurance
-                  </label>
-                  <input
-                    type="file"
-                    name="insurance"
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Live Photo
-                  </label>
-                  <input
-                    type="file"
-                    name="livePhoto"
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Signature Photo
-                  </label>
-                  <input
-                    type="file"
-                    name="signaturePhoto"
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-              </div>
-              <div className="mt-6 flex justify-end space-x-4">
-                <button 
-                  type="button"
-                  onClick={() => setShowAddDialog(false)}
-                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  disabled={loading}
-                  className="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Adding...' : 'Add Documents'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      {/* Add/Edit Dialog */}
+      {(showAddDialog || showEditDialog) && (
+        <DialogForm
+          onSubmit={showEditDialog ? handleUpdate : handleSubmit}
+          title={showEditDialog ? 'Edit Document Record' : 'Add New Document Record'}
+        />
       )}
     </div>
   );

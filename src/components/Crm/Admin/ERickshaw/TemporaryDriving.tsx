@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Plus, Search, X, FileText, ClipboardList, CarFront } from 'lucide-react';
+import { Download, Plus, Search, X, FileText, ClipboardList, CarFront, Eye } from 'lucide-react';
 
 interface TemporaryDrivingData {
   id?: string;
@@ -39,6 +39,44 @@ const TemporaryDriving = () => {
     driverSignaturePhoto: '',
     driverAmount: 0
   });
+
+  const uploadToCloudinary = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'E-Rickshaw'); // Replace with your Cloudinary upload preset
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dm8jxispy/image/upload`, // Replace with your Cloudinary cloud name
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+      const data = await response.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error('Error uploading to Cloudinary:', error);
+      return null;
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = await uploadToCloudinary(file);
+      if (imageUrl) {
+        setFormData(prev => ({
+          ...prev,
+          [fieldName]: imageUrl
+        }));
+      }
+    }
+  };
+
+  const handleImageView = (imageUrl: string) => {
+    window.open(imageUrl, '_blank');
+  };
 
   const fetchRecords = async () => {
     try {
@@ -101,6 +139,38 @@ const TemporaryDriving = () => {
     }
   };
 
+  const FileUploadField = ({ label, name, value }: { label: string; name: string; value: string }) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
+      <div className="flex items-center gap-2">
+        <input
+          type="file"
+          onChange={(e) => handleFileUpload(e, name)}
+          className="hidden"
+          id={`file-${name}`}
+          accept="image/*"
+        />
+        <label
+          htmlFor={`file-${name}`}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
+        >
+          Choose File
+        </label>
+        {value && (
+          <button
+            type="button"
+            onClick={() => handleImageView(value)}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2"
+          >
+            <Eye className="h-4 w-4" />
+            View
+          </button>
+        )}
+      </div>
+      {value && <p className="mt-1 text-sm text-gray-500 truncate">{value}</p>}
+    </div>
+  );
+
   const filteredRecords = drivingRecords.filter(record => 
     Object.values(record).some(value => 
       String(value).toLowerCase().includes(searchTerm.toLowerCase())
@@ -108,7 +178,7 @@ const TemporaryDriving = () => {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto px-4 space-y-8 max-w-[1400px]">
       {/* Header Section */}
       <div className="flex flex-col gap-8">
         <div className="flex items-center gap-4">
@@ -122,39 +192,39 @@ const TemporaryDriving = () => {
         </div>
 
         {/* Action Buttons and Search */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 w-full">
-  <div className="w-full sm:w-[39%] min-h-[50px]"> {/* Add min-height */}
-    <div className="relative">
-      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
-      <input
-        type="text"
-        placeholder="Search records..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-      />
-    </div>
-  </div>
-  <div className="flex gap-4 min-h-[50px]"> {/* Add min-height */}
-    <button className="flex items-center gap-2 bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-amber-700 dark:hover:bg-amber-600 transition-colors">
-      <Download className="h-5 w-5" />
-      Download
-    </button>
-    <button 
-      onClick={() => setShowAddDialog(true)}
-      className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
-    >
-      <Plus className="h-5 w-5" />
-      Add Record
-    </button>
-  </div>
-</div>
+        <div className="flex flex-col sm:flex-row justify-end items-center gap-4 mr-44">
+          <div className="w-full sm:w-[39%]">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search records..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              />
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <button className="flex items-center gap-2 bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-amber-700 dark:hover:bg-amber-600 transition-colors">
+              <Download className="h-5 w-5" />
+              Download
+            </button>
+            <button 
+              onClick={() => setShowAddDialog(true)}
+              className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
+            >
+              <Plus className="h-5 w-5" />
+              Add Record
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Table Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-  <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
-    <table className="w-full min-w-full">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+          <table className="w-full table-auto">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Model Name</th>
@@ -168,7 +238,8 @@ const TemporaryDriving = () => {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aadhar</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">PAN</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Signature</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider ">Amount</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-[270px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -197,11 +268,54 @@ const TemporaryDriving = () => {
                     <td className="px-6 py-4 whitespace-nowrap">{record.driverPhoneNo}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{record.driverHomeLocation}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{record.driverAddress}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{record.driverPhoto}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{record.driverAadhar}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{record.driverPan}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{record.driverSignaturePhoto}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {record.driverPhoto && (
+                        <button
+                          onClick={() => handleImageView(record.driverPhoto)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {record.driverAadhar && (
+                        <button
+                          onClick={() => handleImageView(record.driverAadhar)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {record.driverPan && (
+                        <button
+                          onClick={() => handleImageView(record.driverPan)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {record.driverSignaturePhoto && (
+                        <button
+                          onClick={() => handleImageView(record.driverSignaturePhoto)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">{record.driverAmount}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {/* Add your action buttons here */}
+                    </td>
                   </tr>
                 ))
               )}
@@ -296,46 +410,28 @@ const TemporaryDriving = () => {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver Photo URL</label>
-                  <input
-                    type="text"
-                    name="driverPhoto"
-                    value={formData.driverPhoto}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver Aadhar</label>
-                  <input
-                    type="text"
-                    name="driverAadhar"
-                    value={formData.driverAadhar}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver PAN</label>
-                  <input
-                    type="text"
-                    name="driverPan"
-                    value={formData.driverPan}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver Signature Photo URL</label>
-                  <input
-                    type="text"
-                    name="driverSignaturePhoto"
-                    value={formData.driverSignaturePhoto}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
+                
+                <FileUploadField
+                  label="Driver Photo"
+                  name="driverPhoto"
+                  value={formData.driverPhoto}
+                />
+                <FileUploadField
+                  label="Driver Aadhar"
+                  name="driverAadhar"
+                  value={formData.driverAadhar}
+                />
+                <FileUploadField
+                  label="Driver PAN"
+                  name="driverPan"
+                  value={formData.driverPan}
+                />
+                <FileUploadField
+                  label="Driver Signature"
+                  name="driverSignaturePhoto"
+                  value={formData.driverSignaturePhoto}
+                />
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver Amount</label>
                   <input
