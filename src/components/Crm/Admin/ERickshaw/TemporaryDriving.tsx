@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Plus, Search, X, FileText, ClipboardList, CarFront, Eye } from 'lucide-react';
+import { Download, Plus, Search, X, FileText, ClipboardList, CarFront, Eye, Pencil, Trash2 } from 'lucide-react';
 
 interface TemporaryDrivingData {
   id?: string;
@@ -21,9 +21,11 @@ interface TemporaryDrivingData {
 
 const TemporaryDriving = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [drivingRecords, setDrivingRecords] = useState<TemporaryDrivingData[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<TemporaryDrivingData | null>(null);
   
   const [formData, setFormData] = useState<TemporaryDrivingData>({
     modelName: '',
@@ -43,11 +45,11 @@ const TemporaryDriving = () => {
   const uploadToCloudinary = async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', 'E-Rickshaw'); // Replace with your Cloudinary upload preset
+    formData.append('upload_preset', 'E-Rickshaw');
 
     try {
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dm8jxispy/image/upload`, // Replace with your Cloudinary cloud name
+        `https://api.cloudinary.com/v1_1/dm8jxispy/image/upload`,
         {
           method: 'POST',
           body: formData,
@@ -103,6 +105,30 @@ const TemporaryDriving = () => {
     }));
   };
 
+  const handleEdit = (record: TemporaryDrivingData) => {
+    setSelectedRecord(record);
+    setFormData(record);
+    setShowEditDialog(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this record?')) {
+      try {
+        const response = await fetch(`https://dataentry-one.vercel.app/rickshaw/tempdrive/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          await fetchRecords();
+        } else {
+          console.error('Failed to delete record');
+        }
+      } catch (error) {
+        console.error('Error deleting record:', error);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -136,6 +162,45 @@ const TemporaryDriving = () => {
       }
     } catch (error) {
       console.error('Error creating record:', error);
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedRecord?.id) return;
+
+    try {
+      const response = await fetch(`https://dataentry-one.vercel.app/rickshaw/tempdrive/${selectedRecord.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        await fetchRecords();
+        setShowEditDialog(false);
+        setSelectedRecord(null);
+        setFormData({
+          modelName: '',
+          chassisNumber: '',
+          customerName: '',
+          driverName: '',
+          driverPhoneNo: '',
+          driverHomeLocation: '',
+          driverAddress: '',
+          driverPhoto: '',
+          driverAadhar: '',
+          driverPan: '',
+          driverSignaturePhoto: '',
+          driverAmount: 0
+        });
+      } else {
+        console.error('Failed to update record');
+      }
+    } catch (error) {
+      console.error('Error updating record:', error);
     }
   };
 
@@ -245,13 +310,13 @@ const TemporaryDriving = () => {
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {loading ? (
                 <tr>
-                  <td colSpan={12} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={13} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                     Loading...
                   </td>
                 </tr>
               ) : filteredRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={13} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                     <div className="flex flex-col items-center gap-2">
                       <ClipboardList className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                       <p>No records found</p>
@@ -312,9 +377,22 @@ const TemporaryDriving = () => {
                         </button>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">{record.driverAmount}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">₹{record.driverAmount.toLocaleString()}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {/* Add your action buttons here */}
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={() => handleEdit(record)}
+                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          <Pencil className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => record.id && handleDelete(record.id)}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -462,7 +540,156 @@ const TemporaryDriving = () => {
           </div>
         </div>
       )}
+
+      {/* Edit Record Dialog */}
+      {showEditDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[600px] max-h-[90vh] overflow-y-auto relative">
+            <button 
+              onClick={() => {
+                setShowEditDialog(false);
+                setSelectedRecord(null);
+              }}
+              className="absolute top-4 right-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <div className="flex items-center gap-3 mb-6">
+              <Pencil className="h-6 w-6 text-blue-600 dark:text-blue-500" />
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Edit Driving Record</h2>
+            </div>
+            <form onSubmit={handleUpdate}>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model Name</label>
+                  <input
+                    type="text"
+                    name="modelName"
+                    value={formData.modelName}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Chassis Number</label>
+                  <input
+                    type="text"
+                    name="chassisNumber"
+                    value={formData.chassisNumber}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Customer Name</label>
+                  <input
+                    type="text"
+                    name="customerName"
+                    value={formData.customerName}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver Name</label>
+                  <input
+                    type="text"
+                    name="driverName"
+                    value={formData.driverName}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver Phone Number</label>
+                  <input
+                    type="text"
+                    name="driverPhoneNo"
+                    value={formData.driverPhoneNo}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                   <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver Home Location</label>
+                  <input
+                    type="text"
+                    name="driverHomeLocation"
+                    value={formData.driverHomeLocation}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver Address</label>
+                  <input
+                    type="text"
+                    name="driverAddress"
+                    value={formData.driverAddress}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                
+                <FileUploadField
+                  label="Driver Photo"
+                  name="driverPhoto"
+                  value={formData.driverPhoto}
+                />
+                <FileUploadField
+                  label="Driver Aadhar"
+                  name="driverAadhar"
+                  value={formData.driverAadhar}
+                />
+                <FileUploadField
+                  label="Driver PAN"
+                  name="driverPan"
+                  value={formData.driverPan}
+                />
+                <FileUploadField
+                  label="Driver Signature"
+                  name="driverSignaturePhoto"
+                  value={formData.driverSignaturePhoto}
+                />
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver Amount</label>
+                  <input
+                    type="number"
+                    name="driverAmount"
+                    value={formData.driverAmount}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end space-x-4">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setShowEditDialog(false);
+                    setSelectedRecord(null);
+                  }}
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+                >
+                  Update Record
+                </button>
+              </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+      )}
     </div>
+    
   );
 };
 
