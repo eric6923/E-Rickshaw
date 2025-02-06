@@ -1,18 +1,50 @@
-import React, { useState } from 'react';
-import { Download, Plus, Search, X, ClipboardList, ShoppingCart } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Download, Plus, Search, X, ClipboardList, ShoppingCart, Pencil, Trash2 } from 'lucide-react';
+
+interface SalesOrder {
+  id: string;
+  deliveryDate: string;
+  bookingNo: string;
+  customerName: string;
+  address: string;
+  phoneNumber1: string;
+  phoneNumber2: string;
+  mothersName: string;
+  fathersName: string;
+  nomineeName: string;
+  itemName: string;
+  modelName: string;
+  chassisNumber: string;
+  motorNumber: string;
+  typeOfBattery: string;
+  batterySerialNo1: string;
+  batterySerialNo2: string;
+  batterySerialNo3: string;
+  batterySerialNo4: string;
+  batterySerialNo5: string;
+  color: string;
+  salesValue: number;
+  downPayment: number;
+  salesmanName: string;
+  agentName: string;
+  financerName: string;
+  financeBy: string;
+}
 
 const SalesOrder = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<SalesOrder[]>([]);
+  const [editingOrder, setEditingOrder] = useState<SalesOrder | null>(null);
+  const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
     deliveryDate: '',
     bookingNo: '',
     customerName: '',
     address: '',
-    phone1: '',
-    phone2: '',
+    phoneNumber1: '',
+    phoneNumber2: '',
     mothersName: '',
     fathersName: '',
     nomineeName: '',
@@ -20,12 +52,12 @@ const SalesOrder = () => {
     modelName: '',
     chassisNumber: '',
     motorNumber: '',
-    batteryType: '',
-    batterySerial1: '',
-    batterySerial2: '',
-    batterySerial3: '',
-    batterySerial4: '',
-    batterySerial5: '',
+    typeOfBattery: '',
+    batterySerialNo1: '',
+    batterySerialNo2: '',
+    batterySerialNo3: '',
+    batterySerialNo4: '',
+    batterySerialNo5: '',
     color: '',
     salesValue: '',
     downPayment: '',
@@ -35,6 +67,23 @@ const SalesOrder = () => {
     financeBy: ''
   });
 
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('https://dataentry-one.vercel.app/rickshaw/salesorder');
+      const data = await response.json();
+      setOrders(data);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -43,16 +92,128 @@ const SalesOrder = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitted Sales Order Data:', formData);
-    setShowAddDialog(false);
+    try {
+      const url = editingOrder 
+        ? `https://dataentry-one.vercel.app/rickshaw/salesorder/${editingOrder.id}`
+        : 'https://dataentry-one.vercel.app/rickshaw/salesorder';
+      
+      const method = editingOrder ? 'PUT' : 'POST';
+      
+      // Format the data to match the API requirements
+      const formattedData = {
+        ...formData,
+        deliveryDate: new Date(formData.deliveryDate).toISOString(),
+        salesValue: parseFloat(formData.salesValue),
+        downPayment: parseFloat(formData.downPayment)
+      };
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formattedData),
+      });
+
+      if (response.ok) {
+        fetchOrders();
+        setShowAddDialog(false);
+        setFormData({
+          deliveryDate: '',
+          bookingNo: '',
+          customerName: '',
+          address: '',
+          phoneNumber1: '',
+          phoneNumber2: '',
+          mothersName: '',
+          fathersName: '',
+          nomineeName: '',
+          itemName: '',
+          modelName: '',
+          chassisNumber: '',
+          motorNumber: '',
+          typeOfBattery: '',
+          batterySerialNo1: '',
+          batterySerialNo2: '',
+          batterySerialNo3: '',
+          batterySerialNo4: '',
+          batterySerialNo5: '',
+          color: '',
+          salesValue: '',
+          downPayment: '',
+          salesmanName: '',
+          agentName: '',
+          financerName: '',
+          financeBy: ''
+        });
+        setEditingOrder(null);
+      }
+    } catch (error) {
+      console.error('Error saving order:', error);
+    }
   };
+
+  const handleEdit = (order: SalesOrder) => {
+    setEditingOrder(order);
+    setFormData({
+      deliveryDate: order.deliveryDate.split('T')[0],
+      bookingNo: order.bookingNo,
+      customerName: order.customerName,
+      address: order.address,
+      phoneNumber1: order.phoneNumber1,
+      phoneNumber2: order.phoneNumber2,
+      mothersName: order.mothersName,
+      fathersName: order.fathersName,
+      nomineeName: order.nomineeName,
+      itemName: order.itemName,
+      modelName: order.modelName,
+      chassisNumber: order.chassisNumber,
+      motorNumber: order.motorNumber,
+      typeOfBattery: order.typeOfBattery,
+      batterySerialNo1: order.batterySerialNo1,
+      batterySerialNo2: order.batterySerialNo2,
+      batterySerialNo3: order.batterySerialNo3,
+      batterySerialNo4: order.batterySerialNo4,
+      batterySerialNo5: order.batterySerialNo5,
+      color: order.color,
+      salesValue: order.salesValue.toString(),
+      downPayment: order.downPayment.toString(),
+      salesmanName: order.salesmanName,
+      agentName: order.agentName,
+      financerName: order.financerName,
+      financeBy: order.financeBy
+    });
+    setShowAddDialog(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this order?')) {
+      try {
+        const response = await fetch(`https://dataentry-one.vercel.app/rickshaw/salesorder/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          fetchOrders();
+        }
+      } catch (error) {
+        console.error('Error deleting order:', error);
+      }
+    }
+  };
+
+  const filteredOrders = orders.filter(order => 
+    order.bookingNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.chassisNumber.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Enhanced Header Section */}
+        {/* Header Section */}
         <div className="flex flex-col gap-8 mb-12">
           <div className="flex items-center gap-4">
             <div className="bg-blue-600 p-3 rounded-xl">
@@ -88,7 +249,38 @@ const SalesOrder = () => {
                 Download
               </button>
               <button 
-                onClick={() => setShowAddDialog(true)}
+                onClick={() => {
+                  setEditingOrder(null);
+                  setFormData({
+                    deliveryDate: '',
+                    bookingNo: '',
+                    customerName: '',
+                    address: '',
+                    phoneNumber1: '',
+                    phoneNumber2: '',
+                    mothersName: '',
+                    fathersName: '',
+                    nomineeName: '',
+                    itemName: '',
+                    modelName: '',
+                    chassisNumber: '',
+                    motorNumber: '',
+                    typeOfBattery: '',
+                    batterySerialNo1: '',
+                    batterySerialNo2: '',
+                    batterySerialNo3: '',
+                    batterySerialNo4: '',
+                    batterySerialNo5: '',
+                    color: '',
+                    salesValue: '',
+                    downPayment: '',
+                    salesmanName: '',
+                    agentName: '',
+                    financerName: '',
+                    financeBy: ''
+                  });
+                  setShowAddDialog(true);
+                }}
                 className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors mr-10"
               >
                 <Plus className="h-5 w-5" />
@@ -131,12 +323,19 @@ const SalesOrder = () => {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Agent Name</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Financer Name</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-34 whitespace-nowrap">Finance By</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-34 whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {orders.length === 0 ? (
+                {loading ? (
                   <tr>
-                    <td colSpan={27} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={28} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : filteredOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={28} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                       <div className="flex flex-col items-center gap-2">
                         <ShoppingCart className="h-8 w-8 text-gray-400" />
                         <p>No orders found</p>
@@ -144,9 +343,51 @@ const SalesOrder = () => {
                     </td>
                   </tr>
                 ) : (
-                  orders.map((order, index) => (
-                    <tr key={index}>
-                      {/* Render order data here */}
+                  filteredOrders.map((order, index) => (
+                    <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{index + 1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{new Date(order.deliveryDate).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.bookingNo}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.customerName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.address}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.phoneNumber1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.phoneNumber2}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.mothersName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.fathersName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.nomineeName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.itemName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.modelName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.chassisNumber}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.motorNumber}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.typeOfBattery}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo2}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo3}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo4}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo5}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.color}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.salesValue.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.downPayment.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.salesmanName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.agentName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financerName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financeBy}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(order)}
+                            className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                          >
+                            <Pencil className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(order.id)}
+                            className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -155,7 +396,7 @@ const SalesOrder = () => {
           </div>
         </div>
 
-        {/* Add Order Dialog */}
+        {/* Add/Edit Order Dialog */}
         {showAddDialog && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[900px] max-h-[90vh] overflow-y-auto relative">
@@ -167,7 +408,9 @@ const SalesOrder = () => {
               </button>
               <div className="flex items-center gap-3 mb-6">
                 <ClipboardList className="h-6 w-6 text-blue-600" />
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Add New Sales Order</h2>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                  {editingOrder ? 'Edit Sales Order' : 'Add New Sales Order'}
+                </h2>
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-2 gap-4">
@@ -179,6 +422,7 @@ const SalesOrder = () => {
                       value={formData.deliveryDate}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -189,6 +433,7 @@ const SalesOrder = () => {
                       value={formData.bookingNo}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -199,6 +444,7 @@ const SalesOrder = () => {
                       value={formData.customerName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -209,26 +455,29 @@ const SalesOrder = () => {
                       value={formData.address}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number 1</label>
                     <input
                       type="tel"
-                      name="phone1"
-                      value={formData.phone1}
+                      name="phoneNumber1"
+                      value={formData.phoneNumber1}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number 2</label>
                     <input
                       type="tel"
-                      name="phone2"
-                      value={formData.phone2}
+                      name="phoneNumber2"
+                      value={formData.phoneNumber2}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -239,6 +488,7 @@ const SalesOrder = () => {
                       value={formData.mothersName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -249,6 +499,7 @@ const SalesOrder = () => {
                       value={formData.fathersName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -256,9 +507,10 @@ const SalesOrder = () => {
                     <input
                       type="text"
                       name="nomineeName"
-                      value={formData.nomineeName}
+                      value={formData.nomineeName }
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -269,6 +521,7 @@ const SalesOrder = () => {
                       value={formData.itemName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -279,6 +532,7 @@ const SalesOrder = () => {
                       value={formData.modelName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -289,6 +543,7 @@ const SalesOrder = () => {
                       value={formData.chassisNumber}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -299,66 +554,73 @@ const SalesOrder = () => {
                       value={formData.motorNumber}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Type</label>
                     <input
                       type="text"
-                      name="batteryType"
-                      value={formData.batteryType}
+                      name="typeOfBattery"
+                      value={formData.typeOfBattery}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Serial No 1</label>
                     <input
                       type="text"
-                      name="batterySerial1"
-                      value={formData.batterySerial1}
+                      name="batterySerialNo1"
+                      value={formData.batterySerialNo1}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Serial No 2</label>
                     <input
                       type="text"
-                      name="batterySerial2"
-                      value={formData.batterySerial2}
+                      name="batterySerialNo2"
+                      value={formData.batterySerialNo2}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Serial No 3</label>
                     <input
                       type="text"
-                      name="batterySerial3"
-                      value={formData.batterySerial3}
+                      name="batterySerialNo3"
+                      value={formData.batterySerialNo3}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Serial No 4</label>
                     <input
                       type="text"
-                      name="batterySerial4"
-                      value={formData.batterySerial4}
+                      name="batterySerialNo4"
+                      value={formData.batterySerialNo4}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Serial No 5</label>
                     <input
                       type="text"
-                      name="batterySerial5"
-                      value={formData.batterySerial5}
+                      name="batterySerialNo5"
+                      value={formData.batterySerialNo5}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -369,6 +631,7 @@ const SalesOrder = () => {
                       value={formData.color}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -379,6 +642,8 @@ const SalesOrder = () => {
                       value={formData.salesValue}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                      step="0.01"
                     />
                   </div>
                   <div>
@@ -389,6 +654,8 @@ const SalesOrder = () => {
                       value={formData.downPayment}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                      step="0.01"
                     />
                   </div>
                   <div>
@@ -399,6 +666,7 @@ const SalesOrder = () => {
                       value={formData.salesmanName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -409,6 +677,7 @@ const SalesOrder = () => {
                       value={formData.agentName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -419,6 +688,7 @@ const SalesOrder = () => {
                       value={formData.financerName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -429,6 +699,7 @@ const SalesOrder = () => {
                       value={formData.financeBy}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                 </div>
@@ -444,7 +715,7 @@ const SalesOrder = () => {
                     type="submit"
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
-                    Add Order
+                    {editingOrder ? 'Update Order' : 'Add Order'}
                   </button>
                 </div>
               </form>
