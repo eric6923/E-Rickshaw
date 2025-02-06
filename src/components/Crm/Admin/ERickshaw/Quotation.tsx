@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Plus, Search, X, FileText, ClipboardList, Receipt } from 'lucide-react';
+import { Download, Plus, Search, X, FileText, ClipboardList, Receipt, Pencil, Trash2 } from 'lucide-react';
 
 interface QuotationData {
   id?: string;
@@ -17,9 +17,11 @@ interface QuotationData {
 
 const Quotation = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [quotations, setQuotations] = useState<QuotationData[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedQuotation, setSelectedQuotation] = useState<QuotationData | null>(null);
   
   const [formData, setFormData] = useState<QuotationData>({
     quotationNo: '',
@@ -55,6 +57,39 @@ const Quotation = () => {
     }));
   };
 
+  const handleEdit = (quotation: QuotationData) => {
+    // Convert the ISO date string to local datetime-local format for the input
+    const date = new Date(quotation.date);
+    const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
+                        .toISOString()
+                        .slice(0, 16);
+
+    setSelectedQuotation(quotation);
+    setFormData({
+      ...quotation,
+      date: localDate
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this quotation?')) {
+      try {
+        const response = await fetch(`https://dataentry-one.vercel.app/rickshaw/quotation/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          await fetchQuotations();
+        } else {
+          console.error('Failed to delete quotation');
+        }
+      } catch (error) {
+        console.error('Error deleting quotation:', error);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -65,7 +100,10 @@ const Quotation = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          date: new Date(formData.date).toISOString()
+        }),
       });
 
       if (response.ok) {
@@ -86,6 +124,48 @@ const Quotation = () => {
       }
     } catch (error) {
       console.error('Error creating quotation:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedQuotation?.id) return;
+    
+    setLoading(true);
+    try {
+      // Convert the local datetime to UTC format
+      const utcDate = new Date(formData.date).toISOString();
+
+      const response = await fetch(`https://dataentry-one.vercel.app/rickshaw/quotation/${selectedQuotation.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          date: utcDate
+        }),
+      });
+
+      if (response.ok) {
+        await fetchQuotations();
+        setShowEditDialog(false);
+        setSelectedQuotation(null);
+        setFormData({
+          quotationNo: '',
+          date: '',
+          customerName: '',
+          fathersName: '',
+          phoneNumber1: '',
+          phoneNumber2: '',
+          modelName: '',
+          amount: 0
+        });
+      }
+    } catch (error) {
+      console.error('Error updating quotation:', error);
     } finally {
       setLoading(false);
     }
@@ -154,12 +234,13 @@ const Quotation = () => {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Phone Number 2</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Model Name</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {filteredQuotations.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={9} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                     <div className="flex flex-col items-center gap-2">
                       <ClipboardList className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                       <p>No quotations found</p>
@@ -177,6 +258,22 @@ const Quotation = () => {
                     <td className="px-6 py-4 whitespace-nowrap">{quotation.phoneNumber2}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{quotation.modelName}</td>
                     <td className="px-6 py-4 whitespace-nowrap">₹{quotation.amount.toLocaleString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={() => handleEdit(quotation)}
+                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          <Pencil className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => quotation.id && handleDelete(quotation.id)}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
@@ -313,6 +410,147 @@ const Quotation = () => {
                   className="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Adding...' : 'Add Quotation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Quotation Dialog */}
+      {showEditDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[600px] max-h-[90vh] overflow-y-auto relative">
+            <button 
+              onClick={() => {
+                setShowEditDialog(false);
+                setSelectedQuotation(null);
+              }}
+              className="absolute top-4 right-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <div className="flex items-center gap-3 mb-6">
+              <Pencil className="h-6 w-6 text-blue-600 dark:text-blue-500" />
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Edit Quotation</h2>
+            </div>
+            <form onSubmit={handleUpdate}>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Quotation Number
+                  </label>
+                  <input
+                    type="text"
+                    name="quotationNo"
+                    value={formData.quotationNo}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Date
+                  </label>
+                  <input
+                    type="datetime-local"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Customer Name
+                  </label>
+                  <input
+                    type="text"
+                    name="customerName"
+                    value={formData.customerName}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Father's Name
+                  </label>
+                  <input
+                    type="text"
+                    name="fathersName"
+                    value={formData.fathersName}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Phone Number 1
+                  </label>
+                  <input
+                    type="text"
+                    name="phoneNumber1"
+                    value={formData.phoneNumber1}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Phone Number 2
+                  </label>
+                  <input
+                    type="text"
+                    name="phoneNumber2"
+                    value={formData.phoneNumber2}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Model Name
+                  </label>
+                  <input
+                    type="text"
+                    name="modelName"
+                    value={formData.modelName}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Amount
+                  </label>
+                  <input
+                    type="number"
+                    name="amount"
+                    value={formData.amount}
+                    onChange={handleInputChange}
+                    step="0.01"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end space-x-4">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setShowEditDialog(false);
+                    setSelectedQuotation(null);
+                  }}
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Updating...' : 'Update Quotation'}
                 </button>
               </div>
             </form>
