@@ -1,32 +1,68 @@
-import React, { useState } from 'react';
-import { Download, Plus, Search, X, Receipt, ClipboardList } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Download, Plus, Search, X, Receipt, ClipboardList, Pencil, Trash2 } from 'lucide-react';
+
+interface Invoice {
+  id: string;
+  customerName: string;
+  address: string;
+  phoneNumber1: string;
+  hypothecation: string;
+  itemName: string;
+  modelName: string;
+  chassisNumber: string;
+  motorNumber: string;
+  typeOfBattery: string;
+  batterySerialNo1: string;
+  batterySerialNo2: string;
+  batterySerialNo3: string;
+  batterySerialNo4: string;
+  batterySerialNo5: string;
+  color: string;
+  salesValue: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const SalesInvoice = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [invoices, setInvoices] = useState([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   
   const [formData, setFormData] = useState({
     customerName: '',
     address: '',
-    phoneNumber: '',
+    phoneNumber1: '',
     hypothecation: '',
     itemName: '',
     modelName: '',
     chassisNumber: '',
     motorNumber: '',
-    batteryType: '',
-    batterySerial1: '',
-    batterySerial2: '',
-    batterySerial3: '',
-    batterySerial4: '',
-    batterySerial5: '',
+    typeOfBattery: '',
+    batterySerialNo1: '',
+    batterySerialNo2: '',
+    batterySerialNo3: '',
+    batterySerialNo4: '',
+    batterySerialNo5: '',
     color: '',
     salesValue: ''
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const fetchInvoices = async () => {
+    try {
+      const response = await fetch('https://dataentry-one.vercel.app/rickshaw/salesinv');
+      const data = await response.json();
+      setInvoices(data);
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+    }
+  };
 
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
       ...prevState,
@@ -34,11 +70,119 @@ const SalesInvoice = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Submitted Sales Invoice:', formData);
-    setShowAddDialog(false);
+  const resetForm = () => {
+    setFormData({
+      customerName: '',
+      address: '',
+      phoneNumber1: '',
+      hypothecation: '',
+      itemName: '',
+      modelName: '',
+      chassisNumber: '',
+      motorNumber: '',
+      typeOfBattery: '',
+      batterySerialNo1: '',
+      batterySerialNo2: '',
+      batterySerialNo3: '',
+      batterySerialNo4: '',
+      batterySerialNo5: '',
+      color: '',
+      salesValue: ''
+    });
+    setEditingInvoice(null);
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const payload = {
+      customerName: formData.customerName,
+      address: formData.address,
+      phoneNumber1: formData.phoneNumber1,
+      hypothecation: formData.hypothecation,
+      itemName: formData.itemName,
+      modelName: formData.modelName,
+      chassisNumber: formData.chassisNumber,
+      motorNumber: formData.motorNumber,
+      typeOfBattery: formData.typeOfBattery,
+      batterySerialNo1: formData.batterySerialNo1,
+      batterySerialNo2: formData.batterySerialNo2,
+      batterySerialNo3: formData.batterySerialNo3,
+      batterySerialNo4: formData.batterySerialNo4,
+      batterySerialNo5: formData.batterySerialNo5,
+      color: formData.color,
+      salesValue: Number(formData.salesValue)
+    };
+
+    try {
+      if (editingInvoice) {
+        // Update existing invoice
+        await fetch(`https://dataentry-one.vercel.app/rickshaw/salesinv/${editingInvoice.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        // Create new invoice
+        await fetch('https://dataentry-one.vercel.app/rickshaw/salesinv', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+      
+      await fetchInvoices();
+      setShowAddDialog(false);
+      resetForm();
+    } catch (error) {
+      console.error('Error saving invoice:', error);
+    }
+  };
+
+  const handleEdit = (invoice: Invoice) => {
+    setEditingInvoice(invoice);
+    setFormData({
+      customerName: invoice.customerName,
+      address: invoice.address,
+      phoneNumber1: invoice.phoneNumber1,
+      hypothecation: invoice.hypothecation,
+      itemName: invoice.itemName,
+      modelName: invoice.modelName,
+      chassisNumber: invoice.chassisNumber,
+      motorNumber: invoice.motorNumber,
+      typeOfBattery: invoice.typeOfBattery,
+      batterySerialNo1: invoice.batterySerialNo1,
+      batterySerialNo2: invoice.batterySerialNo2,
+      batterySerialNo3: invoice.batterySerialNo3,
+      batterySerialNo4: invoice.batterySerialNo4,
+      batterySerialNo5: invoice.batterySerialNo5,
+      color: invoice.color,
+      salesValue: invoice.salesValue.toString()
+    });
+    setShowAddDialog(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this invoice?')) {
+      try {
+        await fetch(`https://dataentry-one.vercel.app/rickshaw/salesinv/${id}`, {
+          method: 'DELETE',
+        });
+        await fetchInvoices();
+      } catch (error) {
+        console.error('Error deleting invoice:', error);
+      }
+    }
+  };
+
+  const filteredInvoices = invoices.filter(invoice =>
+    invoice.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    invoice.chassisNumber.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -79,7 +223,10 @@ const SalesInvoice = () => {
                 Download
               </button>
               <button 
-                onClick={() => setShowAddDialog(true)}
+                onClick={() => {
+                  resetForm();
+                  setShowAddDialog(true);
+                }}
                 className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors mr-10"
               >
                 <Plus className="h-5 w-5" />
@@ -112,12 +259,13 @@ const SalesInvoice = () => {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Serial 5</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Color</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Sales Value</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {invoices.length === 0 ? (
+                {filteredInvoices.length === 0 ? (
                   <tr>
-                    <td colSpan={17} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={18} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                       <div className="flex flex-col items-center gap-2">
                         <ClipboardList className="h-8 w-8 text-gray-400" />
                         <p>No invoices found</p>
@@ -125,9 +273,41 @@ const SalesInvoice = () => {
                     </td>
                   </tr>
                 ) : (
-                  invoices.map((invoice, index) => (
-                    <tr key={index}>
-                      {/* Render invoice data here */}
+                  filteredInvoices.map((invoice, index) => (
+                    <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.customerName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.address}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.phoneNumber1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.hypothecation}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.itemName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.modelName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.chassisNumber}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.motorNumber}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.typeOfBattery}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.batterySerialNo1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.batterySerialNo2}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.batterySerialNo3}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.batterySerialNo4}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.batterySerialNo5}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.color}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{invoice.salesValue}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(invoice)}
+                            className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                          >
+                            <Pencil className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(invoice.id)}
+                            className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -136,19 +316,24 @@ const SalesInvoice = () => {
           </div>
         </div>
 
-        {/* Add Invoice Dialog */}
+        {/* Add/Edit Invoice Dialog */}
         {showAddDialog && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[600px] max-h-[90vh] overflow-y-auto relative">
               <button 
-                onClick={() => setShowAddDialog(false)}
+                onClick={() => {
+                  setShowAddDialog(false);
+                  resetForm();
+                }}
                 className="absolute top-4 right-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
               >
                 <X className="h-6 w-6" />
               </button>
               <div className="flex items-center gap-3 mb-6">
                 <Receipt className="h-6 w-6 text-blue-600" />
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Add New Sales Invoice</h2>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                  {editingInvoice ? 'Edit Sales Invoice' : 'Add New Sales Invoice'}
+                </h2>
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 gap-4">
@@ -160,6 +345,7 @@ const SalesInvoice = () => {
                       value={formData.customerName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -170,16 +356,18 @@ const SalesInvoice = () => {
                       value={formData.address}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
                     <input
                       type="tel"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
+                      name="phoneNumber1"
+                      value={formData.phoneNumber1}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -190,6 +378,7 @@ const SalesInvoice = () => {
                       value={formData.hypothecation}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -200,6 +389,7 @@ const SalesInvoice = () => {
                       value={formData.itemName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -210,6 +400,7 @@ const SalesInvoice = () => {
                       value={formData.modelName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -220,6 +411,7 @@ const SalesInvoice = () => {
                       value={formData.chassisNumber}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -230,66 +422,73 @@ const SalesInvoice = () => {
                       value={formData.motorNumber}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Type</label>
                     <input
                       type="text"
-                      name="batteryType"
-                      value={formData.batteryType}
+                      name="typeOfBattery"
+                      value={formData.typeOfBattery}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Serial 1</label>
                     <input
                       type="text"
-                      name="batterySerial1"
-                      value={formData.batterySerial1}
+                      name="batterySerialNo1"
+                      value={formData.batterySerialNo1}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Serial 2</label>
                     <input
                       type="text"
-                      name="batterySerial2"
-                      value={formData.batterySerial2}
+                      name="batterySerialNo2"
+                      value={formData.batterySerialNo2}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Serial 3</label>
                     <input
                       type="text"
-                      name="batterySerial3"
-                      value={formData.batterySerial3}
+                      name="batterySerialNo3"
+                      value={formData.batterySerialNo3}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Serial 4</label>
                     <input
                       type="text"
-                      name="batterySerial4"
-                      value={formData.batterySerial4}
+                      name="batterySerialNo4"
+                      value={formData.batterySerialNo4}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Battery Serial 5</label>
                     <input
                       type="text"
-                      name="batterySerial5"
-                      value={formData.batterySerial5}
+                      name="batterySerialNo5"
+                      value={formData.batterySerialNo5}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -300,6 +499,7 @@ const SalesInvoice = () => {
                       value={formData.color}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -310,13 +510,17 @@ const SalesInvoice = () => {
                       value={formData.salesValue}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                 </div>
                 <div className="mt-6 flex justify-end space-x-4">
                   <button 
                     type="button"
-                    onClick={() => setShowAddDialog(false)}
+                    onClick={() => {
+                      setShowAddDialog(false);
+                      resetForm();
+                    }}
                     className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                   >
                     Cancel
@@ -325,7 +529,7 @@ const SalesInvoice = () => {
                     type="submit"
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
-                    Add Invoice
+                    {editingInvoice ? 'Update Invoice' : 'Add Invoice'}
                   </button>
                 </div>
               </form>

@@ -1,15 +1,35 @@
-import React, { useState } from 'react';
-import { Download, Plus, Search, X, Wallet, ClipboardList } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Download, Plus, Search, X, Wallet, ClipboardList, Pencil, Trash2 } from 'lucide-react';
+
+interface Loan {
+  id: string;
+  customerName: string;
+  chassisNo: string;
+  financerName: string;
+  financerAddress: string;
+  quotation: string;
+  margin: number;
+  loanAmount: number;
+  fdAmount: number;
+  acExtra: number;
+  salesValue: number;
+  downPayment: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const LoanDetails = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loans, setLoans] = useState([]);
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     customerName: '',
-    chassisNumber: '',
+    chassisNo: '',
     financerName: '',
+    financerAddress: '',
     quotation: '',
     margin: '',
     loanAmount: '',
@@ -19,6 +39,20 @@ const LoanDetails = () => {
     downPayment: ''
   });
 
+  const fetchLoans = async () => {
+    try {
+      const response = await fetch('https://dataentry-one.vercel.app/rickshaw/loandet');
+      const data = await response.json();
+      setLoans(data);
+    } catch (error) {
+      console.error('Error fetching loans:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchLoans();
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -27,11 +61,101 @@ const LoanDetails = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Submitted Loan Details:', formData);
-    setShowAddDialog(false);
+  const resetForm = () => {
+    setFormData({
+      customerName: '',
+      chassisNo: '',
+      financerName: '',
+      financerAddress: '',
+      quotation: '',
+      margin: '',
+      loanAmount: '',
+      fdAmount: '',
+      acExtra: '',
+      salesValue: '',
+      downPayment: ''
+    });
+    setIsEditing(false);
+    setEditId(null);
   };
+
+  const handleEdit = (loan: Loan) => {
+    setFormData({
+      customerName: loan.customerName,
+      chassisNo: loan.chassisNo,
+      financerName: loan.financerName,
+      financerAddress: loan.financerAddress,
+      quotation: loan.quotation,
+      margin: loan.margin.toString(),
+      loanAmount: loan.loanAmount.toString(),
+      fdAmount: loan.fdAmount.toString(),
+      acExtra: loan.acExtra.toString(),
+      salesValue: loan.salesValue.toString(),
+      downPayment: loan.downPayment.toString()
+    });
+    setEditId(loan.id);
+    setIsEditing(true);
+    setShowAddDialog(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this loan?')) {
+      try {
+        await fetch(`https://dataentry-one.vercel.app/rickshaw/loandet/${id}`, {
+          method: 'DELETE'
+        });
+        await fetchLoans();
+      } catch (error) {
+        console.error('Error deleting loan:', error);
+      }
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const apiUrl = isEditing 
+      ? `https://dataentry-one.vercel.app/rickshaw/loandet/${editId}`
+      : 'https://dataentry-one.vercel.app/rickshaw/loandet';
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: isEditing ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerName: formData.customerName,
+          chassisNo: formData.chassisNo,
+          financerName: formData.financerName,
+          financerAddress: formData.financerAddress,
+          quotation: formData.quotation,
+          margin: parseFloat(formData.margin),
+          loanAmount: parseFloat(formData.loanAmount),
+          fdAmount: parseFloat(formData.fdAmount),
+          acExtra: parseFloat(formData.acExtra),
+          salesValue: parseFloat(formData.salesValue),
+          downPayment: parseFloat(formData.downPayment)
+        }),
+      });
+
+      if (response.ok) {
+        await fetchLoans();
+        setShowAddDialog(false);
+        resetForm();
+      } else {
+        console.error('Error:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
+  };
+
+  const filteredLoans = loans.filter(loan =>
+    loan.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    loan.chassisNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    loan.financerName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -72,7 +196,10 @@ const LoanDetails = () => {
                 Download
               </button>
               <button 
-                onClick={() => setShowAddDialog(true)}
+                onClick={() => {
+                  resetForm();
+                  setShowAddDialog(true);
+                }}
                 className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors mr-10"
               >
                 <Plus className="h-5 w-5" />
@@ -92,6 +219,7 @@ const LoanDetails = () => {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Customer Name</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Chassis Number</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Financer Name</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Financer Address</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Quotation</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Margin</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Loan Amount</th>
@@ -99,12 +227,13 @@ const LoanDetails = () => {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">A/C Extra</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Sales Value</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Down Payment</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {loans.length === 0 ? (
+                {filteredLoans.length === 0 ? (
                   <tr>
-                    <td colSpan={11} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={13} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                       <div className="flex flex-col items-center gap-2">
                         <ClipboardList className="h-8 w-8 text-gray-400" />
                         <p>No loans found</p>
@@ -112,9 +241,36 @@ const LoanDetails = () => {
                     </td>
                   </tr>
                 ) : (
-                  loans.map((loan, index) => (
-                    <tr key={index}>
-                      {/* Render loan data here */}
+                  filteredLoans.map((loan, index) => (
+                    <tr key={loan.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{index + 1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{loan.customerName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{loan.chassisNo}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{loan.financerName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{loan.financerAddress}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{loan.quotation}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{loan.margin.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{loan.loanAmount.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{loan.fdAmount.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{loan.acExtra.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{loan.salesValue.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{loan.downPayment.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(loan)}
+                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                          >
+                            <Pencil className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(loan.id)}
+                            className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -123,19 +279,24 @@ const LoanDetails = () => {
           </div>
         </div>
 
-        {/* Add Loan Dialog */}
+        {/* Add/Edit Loan Dialog */}
         {showAddDialog && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[600px] max-h-[90vh] overflow-y-auto relative">
               <button 
-                onClick={() => setShowAddDialog(false)}
+                onClick={() => {
+                  setShowAddDialog(false);
+                  resetForm();
+                }}
                 className="absolute top-4 right-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
               >
                 <X className="h-6 w-6" />
               </button>
               <div className="flex items-center gap-3 mb-6">
                 <Wallet className="h-6 w-6 text-blue-600" />
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Add New Loan Details</h2>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                  {isEditing ? 'Edit Loan Details' : 'Add New Loan Details'}
+                </h2>
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 gap-4">
@@ -147,16 +308,18 @@ const LoanDetails = () => {
                       value={formData.customerName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Chassis Number</label>
                     <input
                       type="text"
-                      name="chassisNumber"
-                      value={formData.chassisNumber}
+                      name="chassisNo"
+                      value={formData.chassisNo}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -167,16 +330,29 @@ const LoanDetails = () => {
                       value={formData.financerName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Financer Address</label>
+                    <input
+                      type="text"
+                      name="financerAddress"
+                      value={formData.financerAddress}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quotation</label>
                     <input
-                      type="number"
+                      type="text"
                       name="quotation"
                       value={formData.quotation}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -187,6 +363,8 @@ const LoanDetails = () => {
                       value={formData.margin}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                      step="0.01"
                     />
                   </div>
                   <div>
@@ -197,6 +375,8 @@ const LoanDetails = () => {
                       value={formData.loanAmount}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                      step="0.01"
                     />
                   </div>
                   <div>
@@ -207,6 +387,8 @@ const LoanDetails = () => {
                       value={formData.fdAmount}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                      step="0.01"
                     />
                   </div>
                   <div>
@@ -217,6 +399,8 @@ const LoanDetails = () => {
                       value={formData.acExtra}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                      step="0.01"
                     />
                   </div>
                   <div>
@@ -227,6 +411,8 @@ const LoanDetails = () => {
                       value={formData.salesValue}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                      step="0.01"
                     />
                   </div>
                   <div>
@@ -237,13 +423,18 @@ const LoanDetails = () => {
                       value={formData.downPayment}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                      step="0.01"
                     />
                   </div>
                 </div>
                 <div className="mt-6 flex justify-end space-x-4">
                   <button 
                     type="button"
-                    onClick={() => setShowAddDialog(false)}
+                    onClick={() => {
+                      setShowAddDialog(false);
+                      resetForm();
+                    }}
                     className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                   >
                     Cancel
@@ -252,7 +443,7 @@ const LoanDetails = () => {
                     type="submit"
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
-                    Add Loan
+                    {isEditing ? 'Update Loan' : 'Add Loan'}
                   </button>
                 </div>
               </form>
