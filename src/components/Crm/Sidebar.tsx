@@ -30,7 +30,9 @@ import {
   Wrench,
   Package,
   CarFront,
-  Files
+  Files,
+  UserPlus,
+  UserCheck
 } from "lucide-react";
 
 interface SidebarProps {
@@ -278,9 +280,30 @@ export default function Sidebar({
             )}
           </div>
         ))}
+        <Link
+          to={"/crm/admin/attendance"}
+          className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors mb-1.5 lg:mb-2 ${
+            currentPath === roleBasePath
+              ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+              : "text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700"
+          }`}
+          onClick={() => setSidebarOpen(false)}
+        >
+          <UserCheck size={20} />
+          <span className="ml-3 font-medium">Attendance Register</span>
+        </Link>
 
         {/* Bottom Actions */}
         <div className="fixed bottom-0 left-0 w-[280px] p-3 lg:p-4 border-gray-200 bg-white dark:bg-gray-800">
+        <button
+            onClick={() => {
+              navigate("/crm/admin/team")
+            }}
+            className="flex items-center w-full p-2.5 lg:p-3  hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+          >
+            <UserPlus size={20} />
+            <span className="ml-3">Team Management</span>
+          </button>
           <button
             onClick={() => {
               localStorage.removeItem("crmAuthenticated");

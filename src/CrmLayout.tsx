@@ -32,6 +32,8 @@ import JobCard from "./components/Crm/Admin/Spares&Services/JobCard";
 import Documents from "./components/Crm/Admin/ERickshaw/Document";
 import Quotation from "./components/Crm/Admin/ERickshaw/Quotation";
 import TemporaryDriving from "./components/Crm/Admin/ERickshaw/TemporaryDriving";
+import TeamManagement from "./components/Crm/Admin/TeamManagement";
+import AttendanceRegister from "./components/Crm/Admin/AttendanceRegister";
 
 interface LayoutProps {
   darkMode: boolean;
@@ -128,6 +130,9 @@ const CrmRoutes = ({ darkMode, setDarkMode }: LayoutProps) => {
               <Route path="/admin/spares-services/inventory" element={<Inventory />} />
               <Route path="/admin/spares-services/purchase-invoice" element={<PurchaseInvoiceSpares />} />
               <Route path="/admin/spares-services/job-card" element={<JobCard />} />
+
+              <Route path="/admin/team" element={<TeamManagement />} />
+              <Route path="/admin/attendance" element={<AttendanceRegister />} />
 
               {/* Default Redirect */}
               <Route
