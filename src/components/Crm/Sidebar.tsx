@@ -282,15 +282,11 @@ export default function Sidebar({
         ))}
         <Link
           to={"/crm/admin/attendance"}
-          className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors mb-1.5 lg:mb-2 ${
-            currentPath === roleBasePath
-              ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-              : "text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700"
-          }`}
-          onClick={() => setSidebarOpen(false)}
+          className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors mb-1.5 lg:mb-2 `}
+          
         >
           <UserCheck size={20} />
-          <span className="ml-3 font-medium">Attendance Register</span>
+          <span className="ml-3 ">Attendance Register</span>
         </Link>
 
         {/* Bottom Actions */}
