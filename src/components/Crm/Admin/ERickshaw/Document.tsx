@@ -365,6 +365,72 @@ const Documents = () => {
     </div>
   );
 
+  const MobileCard = ({ record }: { record: DocumentData }) => (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 space-y-4">
+      <div className="flex justify-between items-start">
+        <div>
+          <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{record.customerName}</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Location: {record.homeLocation}</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleEdit(record)}
+            className="p-2 text-blue-600 hover:text-blue-800"
+            title="Edit"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => record.id && handleDelete(record.id)}
+            className="p-2 text-red-600 hover:text-red-800"
+            title="Delete"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Aadhar Card</p>
+          <p className="text-sm text-gray-900 dark:text-white">{record.aadharCard}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Pan Card</p>
+          <p className="text-sm text-gray-900 dark:text-white">{record.panCard}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Voter's ID/DL</p>
+          <p className="text-sm text-gray-900 dark:text-white">{record.voterIdOrDL}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {[
+          { label: 'Sales Invoice', value: record.salesInvoiceWithDS },
+          { label: 'Battery Invoice', value: record.batterySaleInvoice },
+          { label: 'Sales Certificate', value: record.salesCertificateWithDS },
+          { label: 'Insurance', value: record.insurance },
+          { label: 'Live Photo', value: record.livePhoto },
+          { label: 'Signature Photo', value: record.signaturePhoto }
+        ].map((item, index) => (
+          item.value && (
+            <div key={index} className="flex flex-col">
+              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{item.label}</span>
+              <button
+                onClick={() => handleImageView(item.value)}
+                className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
+              >
+                <Eye className="h-4 w-4" />
+                View
+              </button>
+            </div>
+          )
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="container mx-auto px-4 space-y-8 max-w-[1400px]">
       {/* Header Section */}
@@ -380,37 +446,33 @@ const Documents = () => {
         </div>
 
         {/* Action Buttons and Search */}
-        <div className="flex flex-col sm:flex-row justify-end items-center gap-4 mr-44">
-          <div className="w-full sm:w-[39%]">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search records..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <button className="flex items-center gap-2 bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-amber-700 dark:hover:bg-amber-600 transition-colors">
-              <Download className="h-5 w-5" />
-              Download
-            </button>
-            <button
-              onClick={() => setShowAddDialog(true)}
-              className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
-            >
-              <Plus className="h-5 w-5" />
-              Add Record
-            </button>
-          </div>
-        </div>
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+  <div className="w-full sm:w-[39%] ml-auto">
+    <div className="relative">
+      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
+      <input
+        type="text"
+        placeholder="Search records..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+      />
+    </div>
+  </div>
+  <div className="w-full sm:w-auto flex justify-end mr-0 sm:mr-44">
+    <button
+      onClick={() => setShowAddDialog(true)}
+      className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
+    >
+      <Plus className="h-5 w-5" />
+      Add Record
+    </button>
+  </div>
+</div>
       </div>
 
-      {/* Table Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
         <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
           <table className="w-full table-auto">
             <thead className="bg-gray-50 dark:bg-gray-700">
@@ -543,6 +605,26 @@ const Documents = () => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Mobile Cards View */}
+      <div className="md:hidden space-y-4">
+        {loading ? (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            Loading...
+          </div>
+        ) : filteredRecords.length === 0 ? (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="flex flex-col items-center gap-2">
+              <FileText className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+              <p>No records found</p>
+            </div>
+          </div>
+        ) : (
+          filteredRecords.map((record) => (
+            <MobileCard key={record.id} record={record} />
+          ))
+        )}
       </div>
 
       {/* Add/Edit Dialog */}
