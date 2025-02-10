@@ -242,39 +242,51 @@ const TemporaryDriving = () => {
     )
   );
 
+  const ImageViewButton = ({ url }: { url: string }) => (
+    url ? (
+      <button
+        onClick={() => handleImageView(url)}
+        className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+      >
+        <Eye className="h-4 w-4" />
+        View
+      </button>
+    ) : null
+  );
+
   return (
     <div className="container mx-auto px-4 space-y-8 max-w-[1400px]">
       {/* Header Section */}
       <div className="flex flex-col gap-8">
         <div className="flex items-center gap-4">
-          <div className="bg-blue-600 dark:bg-blue-500 p-3 rounded-xl">
+        <div className="bg-blue-600 dark:bg-blue-500 p-3 rounded-xl -mt-12 sm:mt-0">
             <CarFront className="h-8 w-8 text-white" />
           </div>
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Temporary Driving</h1>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white ">Temporary Driving</h1>
             <p className="mt-1 text-gray-500 dark:text-gray-400">Manage temporary driving records</p>
           </div>
         </div>
 
         {/* Action Buttons and Search */}
-        <div className="flex flex-col sm:flex-row justify-end items-center gap-4 mr-44">
-          <div className="w-full sm:w-[39%]">
-            <div className="relative">
+        <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 md:mr-44">
+  <div className="w-full sm:w-[39%]">
+    <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
                 placeholder="Search records..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
           </div>
-          <div className="flex gap-4">
-            <button className="flex items-center gap-2 bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-amber-700 dark:hover:bg-amber-600 transition-colors">
+          <div className="w-full sm:w-auto flex justify-end">
+            {/* <button className="flex items-center gap-2 bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors">
               <Download className="h-5 w-5" />
               Download
-            </button>
+            </button> */}
             <button 
               onClick={() => setShowAddDialog(true)}
               className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
@@ -286,25 +298,26 @@ const TemporaryDriving = () => {
         </div>
       </div>
 
-      {/* Table Section */}
+      {/* Table/Cards Section */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full table-auto">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Model Name</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Chassis Number</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Customer Name</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Driver Name</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Driver Phone</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Home Location</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Address</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Photo</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aadhar</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">PAN</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Signature</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Chassis Number</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Customer Name</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Driver Name</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Driver Phone</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Home Location</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Address</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Photo</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aadhar</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">PAN</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Signature</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-[270px]">Actions</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -334,48 +347,16 @@ const TemporaryDriving = () => {
                     <td className="px-6 py-4 whitespace-nowrap">{record.driverHomeLocation}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{record.driverAddress}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {record.driverPhoto && (
-                        <button
-                          onClick={() => handleImageView(record.driverPhoto)}
-                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
-                      )}
+                      <ImageViewButton url={record.driverPhoto} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {record.driverAadhar && (
-                        <button
-                          onClick={() => handleImageView(record.driverAadhar)}
-                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
-                      )}
+                      <ImageViewButton url={record.driverAadhar} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {record.driverPan && (
-                        <button
-                          onClick={() => handleImageView(record.driverPan)}
-                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
-                      )}
+                      <ImageViewButton url={record.driverPan} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {record.driverSignaturePhoto && (
-                        <button
-                          onClick={() => handleImageView(record.driverSignaturePhoto)}
-                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
-                      )}
+                      <ImageViewButton url={record.driverSignaturePhoto} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">₹{record.driverAmount.toLocaleString()}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -399,6 +380,106 @@ const TemporaryDriving = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden">
+          {loading ? (
+            <div className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+              Loading...
+            </div>
+          ) : filteredRecords.length === 0 ? (
+            <div className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+              <div className="flex flex-col items-center gap-2">
+                <ClipboardList className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                <p>No records found</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 p-4">
+              {filteredRecords.map((record) => (
+                <div key={record.id} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {record.modelName}
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {record.chassisNumber}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEdit(record)}
+                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        <Pencil className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => record.id && handleDelete(record.id)}
+                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Customer</p>
+                        <p className="text-gray-900 dark:text-white">{record.customerName}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Driver</p>
+                        <p className="text-gray-900 dark:text-white">{record.driverName}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Phone</p>
+                      <p className="text-gray-900 dark:text-white">{record.driverPhoneNo}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Location</p>
+                      <p className="text-gray-900 dark:text-white">{record.driverHomeLocation}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Address</p>
+                      <p className="text-gray-900 dark:text-white">{record.driverAddress}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Amount</p>
+                        <p className="text-gray-900 dark:text-white font-semibold">
+                          ₹{record.driverAmount.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Documents</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Photo</p>
+                          <ImageViewButton url={record.driverPhoto} />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Aadhar</p>
+                          <ImageViewButton url={record.driverAadhar} />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">PAN</p>
+                          <ImageViewButton url={record.driverPan} />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Signature</p>
+                          <ImageViewButton url={record.driverSignaturePhoto} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -538,7 +619,7 @@ const TemporaryDriving = () => {
               </div>
             </form>
           </div>
-        </div>
+         </div>
       )}
 
       {/* Edit Record Dialog */}
@@ -611,7 +692,6 @@ const TemporaryDriving = () => {
                   />
                 </div>
                 <div>
-                   <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver Home Location</label>
                   <input
                     type="text"
@@ -682,14 +762,11 @@ const TemporaryDriving = () => {
                   Update Record
                 </button>
               </div>
-              </div>
             </form>
           </div>
         </div>
-        
       )}
     </div>
-    
   );
 };
 

@@ -58,7 +58,6 @@ const Quotation = () => {
   };
 
   const handleEdit = (quotation: QuotationData) => {
-    // Convert the ISO date string to local datetime-local format for the input
     const date = new Date(quotation.date);
     const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
                         .toISOString()
@@ -135,7 +134,6 @@ const Quotation = () => {
     
     setLoading(true);
     try {
-      // Convert the local datetime to UTC format
       const utcDate = new Date(formData.date).toISOString();
 
       const response = await fetch(`https://dataentry-one.vercel.app/rickshaw/quotation/${selectedQuotation.id}`, {
@@ -191,38 +189,36 @@ const Quotation = () => {
         </div>
 
         {/* Action Buttons and Search */}
-        <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4">
-          <div className="w-full sm:w-[39%]">
-            <div className="relative ml-28">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search quotations..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <button className="flex items-center gap-2 bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors">
-              <Download className="h-5 w-5" />
-              Download
-            </button>
-            <button 
-              onClick={() => setShowAddDialog(true)}
-              className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
-            >
-              <Plus className="h-5 w-5" />
-              Add Quotation
-            </button>
-          </div>
-        </div>
+        {/* Action Buttons and Search */}
+<div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4">
+  <div className="w-full sm:w-[39%]">
+    <div className="relative">
+      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
+      <input
+        type="text"
+        placeholder="Search quotations..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+      />
+    </div>
+  </div>
+  <div className="w-full sm:w-auto flex justify-end">
+    <button 
+      onClick={() => setShowAddDialog(true)}
+      className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
+    >
+      <Plus className="h-5 w-5" />
+      Add Quotation
+    </button>
+  </div>
+</div>
       </div>
 
-      {/* Table Section */}
+      {/* Table/Cards Section */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
@@ -279,6 +275,83 @@ const Quotation = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden">
+          {filteredQuotations.length === 0 ? (
+            <div className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+              <div className="flex flex-col items-center gap-2">
+                <ClipboardList className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                <p>No quotations found</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 p-4">
+              {filteredQuotations.map((quotation) => (
+                <div key={quotation.id} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {quotation.quotationNo}
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {new Date(quotation.date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEdit(quotation)}
+                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        <Pencil className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => quotation.id && handleDelete(quotation.id)}
+                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Customer</p>
+                        <p className="text-gray-900 dark:text-white">{quotation.customerName}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Father's Name</p>
+                        <p className="text-gray-900 dark:text-white">{quotation.fathersName}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Phone 1</p>
+                        <p className="text-gray-900 dark:text-white">{quotation.phoneNumber1}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Phone 2</p>
+                        <p className="text-gray-900 dark:text-white">{quotation.phoneNumber2}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Model</p>
+                        <p className="text-gray-900 dark:text-white">{quotation.modelName}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Amount</p>
+                        <p className="text-gray-900 dark:text-white font-semibold">
+                          ₹{quotation.amount.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
