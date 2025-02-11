@@ -167,23 +167,23 @@ export default function Sidebar({
         }
       ]
     },
-    {
-      title: "Defaulter Management",
-      icon: <Landmark size={20} />,
-      mainPath: `${roleBasePath}/clients`,
-      subLinks: [
-        {
-          title: "Logs",
-          icon: <FolderOpen size={18} />,
-          path: `${roleBasePath}/clients`
-        },
-        {
-          title: "Reports",
-          icon: <FileText size={18} />,
-          path: `/crm/admin/reports/default`
-        }
-      ]
-    },
+    // {
+    //   title: "Defaulter Management",
+    //   icon: <Landmark size={20} />,
+    //   mainPath: `${roleBasePath}/clients`,
+    //   subLinks: [
+    //     {
+    //       title: "Logs",
+    //       icon: <FolderOpen size={18} />,
+    //       path: `${roleBasePath}/clients`
+    //     },
+    //     {
+    //       title: "Reports",
+    //       icon: <FileText size={18} />,
+    //       path: `/crm/admin/reports/default`
+    //     }
+    //   ]
+    // },
     {
       title: "Loan Management",
       icon: <Banknote size={20} />,
