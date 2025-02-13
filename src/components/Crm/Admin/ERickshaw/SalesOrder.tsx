@@ -101,7 +101,6 @@ const SalesOrder = () => {
       
       const method = editingOrder ? 'PUT' : 'POST';
       
-      // Format the data to match the API requirements
       const formattedData = {
         ...formData,
         deliveryDate: new Date(formData.deliveryDate).toISOString(),
@@ -210,13 +209,112 @@ const SalesOrder = () => {
     order.chassisNumber.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const MobileCard = ({ order, index }: { order: SalesOrder; index: number }) => (
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <span className="text-sm text-gray-500 dark:text-gray-400">#{index + 1}</span>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{order.bookingNo}</h3>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleEdit(order)}
+            className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            <Pencil className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => handleDelete(order.id)}
+            className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+          >
+            <Trash2 className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+      
+      <div className="space-y-4">
+        <div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Customer Details</p>
+          <div className="mt-1 space-y-1">
+            <p className="text-sm font-medium">{order.customerName}</p>
+            <p className="text-sm">{order.address}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <p className="text-sm">Ph: {order.phoneNumber1}</p>
+              {order.phoneNumber2 && <p className="text-sm">Alt: {order.phoneNumber2}</p>}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Family Details</p>
+          <div className="mt-1 space-y-1">
+            <p className="text-sm">Mother: {order.mothersName}</p>
+            <p className="text-sm">Father: {order.fathersName}</p>
+            <p className="text-sm">Nominee: {order.nomineeName}</p>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Vehicle Details</p>
+          <div className="mt-1 space-y-1">
+            <p className="text-sm">{order.itemName} - {order.modelName}</p>
+            <p className="text-sm">Chassis: {order.chassisNumber}</p>
+            <p className="text-sm">Motor: {order.motorNumber}</p>
+            <p className="text-sm">Color: {order.color}</p>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Battery Details</p>
+          <p className="text-sm font-medium mt-1">Type: {order.typeOfBattery}</p>
+          <div className="grid grid-cols-3 gap-1 mt-1">
+            <p className="text-xs">{order.batterySerialNo1}</p>
+            <p className="text-xs">{order.batterySerialNo2}</p>
+            <p className="text-xs">{order.batterySerialNo3}</p>
+            <p className="text-xs">{order.batterySerialNo4}</p>
+            <p className="text-xs">{order.batterySerialNo5}</p>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Payment Details</p>
+          <div className="mt-1 grid grid-cols-2 gap-2">
+            <div>
+              <p className="text-xs text-gray-500">Sales Value</p>
+              <p className="text-sm font-medium">₹{order.salesValue.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Down Payment</p>
+              <p className="text-sm font-medium">₹{order.downPayment.toFixed(2)}</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Sales Details</p>
+          <div className="mt-1 space-y-1">
+            <p className="text-sm">Salesman: {order.salesmanName}</p>
+            <p className="text-sm">Agent: {order.agentName}</p>
+            <p className="text-sm">Financer: {order.financerName}</p>
+            <p className="text-sm">Finance By: {order.financeBy}</p>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Delivery Date</p>
+          <p className="text-sm font-medium">{new Date(order.deliveryDate).toLocaleDateString()}</p>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="flex flex-col gap-8 mb-12">
           <div className="flex items-center gap-4">
-            <div className="bg-blue-600 p-3 rounded-xl">
+            <div className="bg-blue-600 p-3 rounded-xl -mt-10 sm:mt-0">
               <ShoppingCart className="h-8 w-8 text-white" />
             </div>
             <div>
@@ -230,9 +328,9 @@ const SalesOrder = () => {
           </div>
 
           {/* Action Buttons and Search */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="w-full sm:w-[39%] ml-96">
-              <div className="relative ml-36">
+          <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 md:mr-8">
+            <div className="w-full sm:w-[39%]">
+              <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
@@ -243,11 +341,7 @@ const SalesOrder = () => {
                 />
               </div>
             </div>
-            <div className="flex gap-4">
-              <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                <Download className="h-5 w-5" />
-                Download
-              </button>
+            <div className="flex gap-4 w-full justify-end sm:w-auto">
               <button 
                 onClick={() => {
                   setEditingOrder(null);
@@ -281,7 +375,7 @@ const SalesOrder = () => {
                   });
                   setShowAddDialog(true);
                 }}
-                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors mr-10"
+                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
               >
                 <Plus className="h-5 w-5" />
                 Add Order
@@ -290,116 +384,122 @@ const SalesOrder = () => {
           </div>
         </div>
 
-        {/* Table Section */}
+        {/* Table/Cards Section */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-          <div className="max-w-full overflow-x-auto">
-            <table className="w-full min-w-[2000px]">
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">S.No</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Delivery Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Booking No</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Customer Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Address</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Phone 1</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Phone 2</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Mother's Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Father's Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Nominee Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Item Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Model Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Chassis Number</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Motor Number</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Type</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Serial 1</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Serial 2</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Serial 3</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Serial 4</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Serial 5</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Color</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Sales Value</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Down Payment</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Salesman Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Agent Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Financer Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-34 whitespace-nowrap">Finance By</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-34 whitespace-nowrap">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {loading ? (
-                  <tr>
-                    <td colSpan={28} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                      Loading...
-                    </td>
-                  </tr>
-                ) : filteredOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan={28} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                      <div className="flex flex-col items-center gap-2">
-                        <ShoppingCart className="h-8 w-8 text-gray-400" />
-                        <p>No orders found</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredOrders.map((order, index) => (
-                    <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{index + 1}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{new Date(order.deliveryDate).toLocaleDateString()}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.bookingNo}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.customerName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.address}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.phoneNumber1}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.phoneNumber2}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.mothersName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.fathersName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.nomineeName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.itemName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.modelName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.chassisNumber}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.motorNumber}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.typeOfBattery}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo1}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo2}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo3}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo4}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo5}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.color}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.salesValue.toFixed(2)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.downPayment.toFixed(2)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.salesmanName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.agentName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financerName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financeBy}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEdit(order)}
-                            className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                          >
-                            <Pencil className="h-5 w-5" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(order.id)}
-                            className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </button>
-                        </div>
-                      </td>
+          {loading ? (
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+              Loading...
+            </div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+              <div className="flex flex-col items-center gap-2">
+                <ShoppingCart className="h-8 w-8 text-gray-400" />
+                <p>No orders found</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Mobile View */}
+              <div className="md:hidden p-4">
+                {filteredOrders.map((order, index) => (
+                  <MobileCard key={order.id} order={order} index={index} />
+                ))}
+              </div>
+
+              {/* Desktop View */}
+              <div className="hidden md:block max-w-full overflow-x-auto">
+                <table className="w-full min-w-[2000px]">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">S.No</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Delivery Date</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Booking No</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Customer Name</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Address</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Phone 1</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Phone 2</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Mother's Name</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Father's Name</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Nominee Name</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Item Name</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Model Name</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Chassis Number</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Motor Number</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Type</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Serial 1</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Serial 2</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Serial 3</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Serial 4</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Battery Serial 5</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Color</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Sales Value</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Down Payment</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Salesman Name</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Agent Name</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Financer Name</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-34 whitespace-nowrap">Finance By</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-34 whitespace-nowrap">Actions</th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {filteredOrders.map((order, index) => (
+                      <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{index + 1}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{new Date(order.deliveryDate).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.bookingNo}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.customerName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.address}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.phoneNumber1}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.phoneNumber2}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.mothersName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.fathersName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.nomineeName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.itemName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.modelName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.chassisNumber}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.motorNumber}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.typeOfBattery}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo1}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo2}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo3}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo4}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.batterySerialNo5}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.color}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.salesValue.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.downPayment.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.salesmanName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.agentName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financerName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financeBy}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEdit(order)}
+                              className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                            >
+                              <Pencil className="h-5 w-5" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(order.id)}
+                              className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Add/Edit Order Dialog */}
         {showAddDialog && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[900px] max-h-[90vh] overflow-y-auto relative">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-full max-w-[900px] max-h-[90vh] overflow-y-auto relative">
               <button 
                 onClick={() => setShowAddDialog(false)}
                 className="absolute top-4 right-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
@@ -413,14 +513,13 @@ const SalesOrder = () => {
                 </h2>
               </div>
               <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Delivery Date</label>
                     <input
                       type="date"
                       name="deliveryDate"
-                      value={formData.deliveryDate}
-                      onChange={handleInputChange}
+                      value={formData.deliveryDate} onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       required
                     />
@@ -507,7 +606,7 @@ const SalesOrder = () => {
                     <input
                       type="text"
                       name="nomineeName"
-                      value={formData.nomineeName }
+                      value={formData.nomineeName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       required
