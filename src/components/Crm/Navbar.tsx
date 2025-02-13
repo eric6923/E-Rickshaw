@@ -200,20 +200,7 @@ export default function Navbar({
           </button>
 
           <div className="relative" ref={notificationRef}>
-            <button
-              onClick={handleNotificationClick}
-              className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg relative"
-            >
-              <Bell size={20} />
-              {isLoading && !showNotifications && (
-                <span className="absolute top-0 right-0 h-2 w-2 bg-blue-500 rounded-full"></span>
-              )}
-              {newActivitiesCount > 0 && !isLoading && !showNotifications && (
-                <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {newActivitiesCount}
-                </span>
-              )}
-            </button>
+            
 
             {showNotifications && (
               <div className="fixed sm:absolute left-0 sm:left-auto right-0 sm:right-0 top-16 sm:top-auto sm:mt-2 w-full sm:w-80 bg-white dark:bg-gray-800 shadow-lg py-1 z-50 sm:rounded-lg sm:border border-gray-200 dark:border-gray-700 max-h-[70vh] sm:max-h-96 overflow-y-auto">

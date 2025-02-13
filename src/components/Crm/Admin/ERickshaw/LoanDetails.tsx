@@ -163,7 +163,7 @@ const LoanDetails = () => {
         {/* Header Section */}
         <div className="flex flex-col gap-8 mb-12">
           <div className="flex items-center gap-4">
-            <div className="bg-blue-600 p-3 rounded-xl">
+            <div className="bg-blue-600 p-3 rounded-xl -mt-10 sm:mt-0">
               <Wallet className="h-8 w-8 text-white" />
             </div>
             <div>
@@ -177,9 +177,9 @@ const LoanDetails = () => {
           </div>
 
           {/* Action Buttons and Search */}
-          <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 md:mr-8">
             <div className="w-full sm:w-[39%]">
-              <div className="relative ml-36">
+              <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
@@ -190,17 +190,14 @@ const LoanDetails = () => {
                 />
               </div>
             </div>
-            <div className="flex gap-4">
-              <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                <Download className="h-5 w-5" />
-                Download
-              </button>
+            <div className="flex gap-4 w-full sm:w-auto justify-end">
+              
               <button 
                 onClick={() => {
                   resetForm();
                   setShowAddDialog(true);
                 }}
-                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors mr-10"
+                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
               >
                 <Plus className="h-5 w-5" />
                 Add Loan
@@ -209,9 +206,10 @@ const LoanDetails = () => {
           </div>
         </div>
 
-        {/* Table Section */}
+        {/* Table Section (Desktop) and Cards Section (Mobile) */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-          <div className="overflow-x-auto">
+          {/* Desktop View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
@@ -277,12 +275,97 @@ const LoanDetails = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile View */}
+          <div className="md:hidden">
+            {filteredLoans.length === 0 ? (
+              <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+                <div className="flex flex-col items-center gap-2">
+                  <ClipboardList className="h-8 w-8 text-gray-400" />
+                  <p>No loans found</p>
+                </div>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-200 dark:divide-gray-700 [&>*]:py-12">
+                {filteredLoans.map((loan, index) => (
+                  <div key={loan.id} className="p-4 space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">#{index + 1}</span>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{loan.customerName}</h3>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(loan)}
+                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          <Pencil className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(loan.id)}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Chassis Number</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{loan.chassisNo}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Financer Name</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{loan.financerName}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Financer Address</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{loan.financerAddress}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Quotation</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{loan.quotation}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Margin</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{loan.margin.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Loan Amount</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{loan.loanAmount.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">FD Amount</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{loan.fdAmount.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">A/C Extra</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{loan.acExtra.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Sales Value</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{loan.salesValue.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Down Payment</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{loan.downPayment.toFixed(2)}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Add/Edit Loan Dialog */}
         {showAddDialog && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[600px] max-h-[90vh] overflow-y-auto relative">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto relative">
               <button 
                 onClick={() => {
                   setShowAddDialog(false);
@@ -455,4 +538,4 @@ const LoanDetails = () => {
   );
 };
 
-export default LoanDetails;
+export default LoanDetails

@@ -147,13 +147,74 @@ const PaymentDetails = () => {
     payment.salesmanIncentive.toString().includes(searchTerm)
   );
 
+  // Mobile Card View Component
+  const PaymentCard = ({ payment, index }: { payment: Payment; index: number }) => (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">#{index + 1}</span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleEdit(payment)}
+            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            <Pencil className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => handleDelete(payment.id)}
+            className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+          >
+            <Trash2 className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Salary</p>
+          <p className="font-semibold">{payment.salary.toFixed(2)}</p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Agent Commission</p>
+          <p className="font-semibold">{payment.agentCommission.toFixed(2)}</p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Salesman Incentive</p>
+          <p className="font-semibold">{payment.salesmanIncentive.toFixed(2)}</p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Financer Incentive</p>
+          <p className="font-semibold">{payment.financerIncentive.toFixed(2)}</p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">File Charge</p>
+          <p className="font-semibold">{payment.fileCharge.toFixed(2)}</p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Stamp Paper</p>
+          <p className="font-semibold">{payment.stampPaper.toFixed(2)}</p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Guarantor Fees</p>
+          <p className="font-semibold">{payment.guarantorFees.toFixed(2)}</p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Processing Charge</p>
+          <p className="font-semibold">{payment.processingCharge.toFixed(2)}</p>
+        </div>
+        <div className="col-span-2">
+          <p className="text-xs text-gray-500 dark:text-gray-400">Other Expenses</p>
+          <p className="font-semibold">{payment.otherExpenses.toFixed(2)}</p>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="flex flex-col gap-8 mb-12">
           <div className="flex items-center gap-4">
-            <div className="bg-blue-600 p-3 rounded-xl">
+            <div className="bg-blue-600 p-3 rounded-xl -mt-10 sm:mt-0">
               <DollarSign className="h-8 w-8 text-white" />
             </div>
             <div>
@@ -167,40 +228,37 @@ const PaymentDetails = () => {
           </div>
 
           {/* Action Buttons and Search */}
-          <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4">
-            <div className="w-full sm:w-[39%]">
-              <div className="relative ml-36">
+          <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 md:mr-8">
+  <div className="w-full sm:w-auto">
+              <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search payments..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all"
+                  className="w-full sm:w-[300px] pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all"
                 />
               </div>
             </div>
-            <div className="flex gap-4 ">
-              <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                <Download className="h-5 w-5" />
-                Download
-              </button>
+            <div className="flex gap-4 w-full sm:w-auto justify-end">
+              
               <button 
                 onClick={() => {
                   resetForm();
                   setShowAddDialog(true);
                 }}
-                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors mr-10"
+                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
               >
                 <Plus className="h-5 w-5" />
-                Add Payment
+                <span>Add Payment</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Table Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+        {/* Responsive Table/Card View */}
+        <div className="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-700">
@@ -265,10 +323,26 @@ const PaymentDetails = () => {
           </div>
         </div>
 
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4">
+          {filteredPayments.length === 0 ? (
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center text-gray-500 dark:text-gray-400">
+              <div className="flex flex-col items-center gap-2">
+                <ClipboardList className="h-8 w-8 text-gray-400" />
+                <p>No payments found</p>
+              </div>
+            </div>
+          ) : (
+            filteredPayments.map((payment, index) => (
+              <PaymentCard key={payment.id} payment={payment} index={index} />
+            ))
+          )}
+        </div>
+
         {/* Add/Edit Payment Dialog */}
         {showAddDialog && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[600px] max-h-[90vh] overflow-y-auto relative">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto relative">
               <button 
                 onClick={() => {
                   setShowAddDialog(false);
@@ -280,12 +354,12 @@ const PaymentDetails = () => {
               </button>
               <div className="flex items-center gap-3 mb-6">
                 <DollarSign className="h-6 w-6 text-blue-600" />
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
                   {isEditing ? 'Edit Payment Details' : 'Add New Payment Details'}
                 </h2>
               </div>
               <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Salary</label>
                     <input
@@ -382,7 +456,7 @@ const PaymentDetails = () => {
                       step="0.01"
                     />
                   </div>
-                  <div>
+                  <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Other Expenses</label>
                     <input
                       type="number"
@@ -410,7 +484,7 @@ const PaymentDetails = () => {
                     type="submit"
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
-                    {isEditing ? 'Update Payment' : 'Add Payment'}
+                    {isEditing ? 'Update' : 'Add Payment'}
                   </button>
                 </div>
               </form>
