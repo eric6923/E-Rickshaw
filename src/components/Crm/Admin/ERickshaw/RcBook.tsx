@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Plus, Search, X, FileCheck, ClipboardList, Pencil, Trash2 } from 'lucide-react';
+import {Plus, Search, X, FileCheck, ClipboardList, Pencil, Trash2 } from 'lucide-react';
 
 interface RCBook {
   id: string;
@@ -518,7 +518,7 @@ const RCBook = () => {
                     type="submit"
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
-                    {editingRcBook ? 'Update RC Book' : 'Add RC Book'}
+                    {editingRcBook ? 'Update' : 'Add RC Book'}
                   </button>
                 </div>
               </form>

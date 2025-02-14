@@ -147,7 +147,7 @@ const SalesInvoice = () => {
       {/* Header Section */}
       <div className="flex flex-col gap-8">
         <div className="flex items-center gap-4">
-          <div className="bg-blue-600 dark:bg-blue-500 p-3 rounded-xl">
+          <div className="bg-blue-600 -mt-10 sm:mt-0 dark:bg-blue-500 p-3 rounded-xl">
             <Receipt className="h-8 w-8 text-white" />
           </div>
           <div>
@@ -157,9 +157,9 @@ const SalesInvoice = () => {
         </div>
 
         {/* Action Buttons and Search */}
-        <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 mr-44">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="w-full sm:w-[39%]">
-            <div className="relative ml-28">
+            <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
@@ -170,11 +170,8 @@ const SalesInvoice = () => {
               />
             </div>
           </div>
-          <div className="flex gap-4">
-            <button className="flex items-center gap-2 bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors">
-              <Download className="h-5 w-5" />
-              Download
-            </button>
+          <div className="flex gap-4 w-full sm:w-auto justify-end">
+            
             <button 
               onClick={() => {
                 resetForm();
@@ -189,9 +186,9 @@ const SalesInvoice = () => {
         </div>
       </div>
 
-      {/* Table Section */}
+      {/* Table Section (Desktop) */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+        <div className="hidden md:block overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
           <table className="w-full table-auto">
             <thead className="bg-gray-50 dark:bg-gray-700 sticky top-0">
               <tr>
@@ -204,7 +201,7 @@ const SalesInvoice = () => {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Model Name</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Serial Number</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap min-w-[150px]">Sales Value</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap min-w-[275px]">Actions</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap min-w-[100px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -251,12 +248,93 @@ const SalesInvoice = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile View (Cards) */}
+        <div className="md:hidden">
+          {filteredSales.length === 0 ? (
+            <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+              <div className="flex flex-col items-center gap-2">
+                <ClipboardList className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                <p>No sales found</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 p-4">
+              {filteredSales.map((sale) => (
+                <div key={sale.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{sale.customerName}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{sale.phoneNumber1}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(sale)}
+                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        <Pencil className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => sale.id && handleDelete(sale.id)}
+                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Address</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{sale.address}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">E-Rickshaw</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{sale.eRickshawName}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Chassis Number</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{sale.chassisNumber}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Item Name</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{sale.itemName}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Model Name</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{sale.modelName}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Serial Number</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{sale.serialNumber}</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-500 dark:text-gray-400">Sales Value</span>
+                      <span className="text-lg font-semibold text-green-600 dark:text-green-400">
+                        ₹{sale.salesValue.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Add/Edit Sale Dialog */}
       {showAddDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[600px] max-h-[90vh] overflow-y-auto relative">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl w-full sm:w-[600px] max-h-[90vh] overflow-y-auto relative">
             <button 
               onClick={() => {
                 setShowAddDialog(false);
@@ -272,9 +350,9 @@ const SalesInvoice = () => {
                 {isEditing ? 'Edit Sale' : 'Add New Sale'}
               </h2>
             </div>
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 gap-4">
-                <div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Customer Name</label>
                   <input
                     type="text"
@@ -284,7 +362,7 @@ const SalesInvoice = () => {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                 </div>
-                <div>
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
                   <input
                     type="text"

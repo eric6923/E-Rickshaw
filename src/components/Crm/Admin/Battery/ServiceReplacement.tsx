@@ -156,9 +156,9 @@ const ServiceBatteryReplacement = () => {
         </div>
 
         {/* Action Buttons and Search */}
-        <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 mr-44">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="w-full sm:w-[39%]">
-            <div className="relative ml-28">
+            <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
@@ -169,11 +169,7 @@ const ServiceBatteryReplacement = () => {
               />
             </div>
           </div>
-          <div className="flex gap-4">
-            <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-              <Download className="h-5 w-5" />
-              Download
-            </button>
+          <div className="flex gap-4 w-full sm:w-auto justify-end">
             <button 
               onClick={() => {
                 resetForm();
@@ -188,9 +184,9 @@ const ServiceBatteryReplacement = () => {
         </div>
       </div>
 
-      {/* Table Section */}
+      {/* Table Section (Desktop) */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-        <div className="overflow-x-auto max-h-[600px]">
+        <div className="hidden md:block overflow-x-auto max-h-[600px]">
           <table className="w-full table-auto">
             <thead className="bg-gray-50 dark:bg-gray-700 sticky top-0">
               <tr>
@@ -202,7 +198,7 @@ const ServiceBatteryReplacement = () => {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Date of Invoice</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Token Number</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap min-w-[150px]">Battery S/N</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap min-w-[250px]">Actions</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap min-w-[100px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -250,12 +246,86 @@ const ServiceBatteryReplacement = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile View (Cards) */}
+        <div className="md:hidden">
+          {filteredServices.length === 0 ? (
+            <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+              <div className="flex flex-col items-center gap-2">
+                <ClipboardList className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                <p>No services found</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 p-4">
+              {filteredServices.map((service) => (
+                <div key={service.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{service.customerName}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Token #{service.tokenNumber}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(service)}
+                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        <Pencil className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => service.id && handleDelete(service.id)}
+                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Old Battery Number</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{service.oldBatteryNumber}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Model Name</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{service.modelName}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Retailer Name</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{service.retailerName}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Invoice Number</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{service.salesInvoiceNumber}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Date of Invoice</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {new Date(service.dateOfInvoice).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400">Replacement Battery S/N</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{service.replacementBatterySerialNo}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Add/Edit Service Dialog */}
       {showAddDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[600px] max-h-[90vh] overflow-y-auto relative">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl w-full sm:w-[600px] max-h-[90vh] overflow-y-auto relative">
             <button 
               onClick={() => {
                 setShowAddDialog(false);
@@ -271,9 +341,9 @@ const ServiceBatteryReplacement = () => {
                 {isEditing ? 'Edit Battery Replacement' : 'Add New Battery Replacement'}
               </h2>
             </div>
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 gap-4">
-                <div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Old Battery Number</label>
                   <input
                     type="text"
