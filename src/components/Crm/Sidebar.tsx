@@ -281,11 +281,10 @@ export default function Sidebar({
           </div>
         ))}
         <Link
-          to={"/crm/admin/attendance"}
-          className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors mb-1.5 lg:mb-2 `}
-          onClick={() => setSidebarOpen(false)} 
-          
-        >
+  to={"/crm/admin/attendance"}
+  className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors mb-1.5 lg:mb-2 text-gray-600 font-medium dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700`}
+  onClick={() => setSidebarOpen(false)} 
+>
           <UserCheck size={20} />
           <span className="ml-3 ">Attendance Register</span>
         </Link>
