@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Plus, Search, X, Users, Mail, UserCog, UserPlus } from 'lucide-react';
+import { Download, Plus, Search, X, Users, Mail, UserCog, UserPlus, Pencil, Trash2 } from 'lucide-react';
 
 function App() {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -33,7 +33,7 @@ function App() {
         {/* Header Section */}
         <div className="flex flex-col gap-8 mb-12">
           <div className="flex items-center gap-4">
-            <div className="bg-blue-600 p-3 rounded-xl">
+            <div className="bg-blue-600 p-3 rounded-xl -mt-12 sm:mt-0">
               <UserPlus className="h-8 w-8 text-white" />
             </div>
             <div>
@@ -47,22 +47,18 @@ function App() {
           </div>
 
           {/* Action Buttons and Search */}
-          <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4">
-            <div className="relative flex-grow sm:w-[300px] ml-[610px]">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="relative w-full sm:w-[300px]">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search team members..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-80 pl-12 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all"
+                className="w-full pl-12 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all"
               />
             </div>
-            <div className="flex gap-4">
-              {/* <button className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors">
-                <Download className="h-5 w-5" />
-                Export
-              </button> */}
+            <div className="flex gap-4 w-full sm:w-auto justify-end">
               <button 
                 onClick={() => setShowAddDialog(true)}
                 className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors"
@@ -74,8 +70,8 @@ function App() {
           </div>
         </div>
 
-        {/* Table Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+        {/* Table Section (Desktop) */}
+        <div className="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-700">
@@ -110,10 +106,51 @@ function App() {
           </div>
         </div>
 
+        {/* Mobile Cards View */}
+        <div className="md:hidden space-y-4">
+          {teamMembers.length === 0 ? (
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-lg">
+              <div className="flex flex-col items-center gap-2">
+                <Users className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                <p className="text-gray-500 dark:text-gray-400">No team members found</p>
+              </div>
+            </div>
+          ) : (
+            teamMembers.map((member, index) => (
+              <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{member.name}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{member.email}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                      <Pencil className="h-5 w-5" />
+                    </button>
+                    <button className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Role</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{member.role}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Created</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{member.createdDate}</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
         {/* Add Team Member Dialog */}
         {showAddDialog && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl w-[600px] max-h-[90vh] overflow-y-auto relative">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto relative">
               <button 
                 onClick={() => setShowAddDialog(false)}
                 className="absolute top-4 right-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
@@ -158,8 +195,7 @@ function App() {
                     >
                       <option value="">Select a role</option>
                       <option value="admin">Admin</option>
-                      <option value="manager">Manager</option>
-                      <option value="employee">Employee</option>
+                      <option value="manager">User</option> 
                     </select>
                   </div>
                   <div>
