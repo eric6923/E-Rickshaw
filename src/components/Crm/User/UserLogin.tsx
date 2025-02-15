@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, LogIn } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
 
 interface Credentials {
   email: string;
@@ -12,6 +13,17 @@ interface LoginResponse {
   token: string;
 }
 
+interface DecodedToken {
+  permissions: Array<{
+    canManageERickshaw: boolean;
+    canManageBattery: boolean;
+    canManageSparesServices: boolean;
+    canManageLoan: boolean;
+    canManageAttendance: boolean;
+    canManageDashboard: boolean;
+  }>;
+}
+
 export default function CrmLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +31,38 @@ export default function CrmLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const getInitialRoute = (token: string): string => {
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      const permissions = decoded.permissions[0];
+
+      // Check permissions in order of priority
+      if (permissions.canManageDashboard) {
+        return '/dashboard';
+      }
+      if (permissions.canManageLoan) {
+        return '/loan';
+      }
+      if (permissions.canManageERickshaw) {
+        return '/e-rickshaw';
+      }
+      if (permissions.canManageBattery) {
+        return '/battery';
+      }
+      if (permissions.canManageSparesServices) {
+        return '/spares-services';
+      }
+      if (permissions.canManageAttendance) {
+        return '/attendance';
+      }
+
+      throw new Error("No valid permissions found");
+    } catch (error) {
+      console.error("Error determining initial route:", error);
+      return '/login';
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,8 +87,17 @@ export default function CrmLogin() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userAuthenticated", "true");
         
-        window.dispatchEvent(new Event('userLoggedIn'));
-        navigate('/e-rickshaw'); // Changed default route to /e-rickshaw
+        // Determine the initial route based on user permissions
+        const initialRoute = getInitialRoute(data.token);
+        
+        if (initialRoute === '/login') {
+          setError("Account has no valid permissions");
+          localStorage.removeItem("token");
+          localStorage.removeItem("userAuthenticated");
+        } else {
+          window.dispatchEvent(new Event('userLoggedIn'));
+          navigate(initialRoute);
+        }
       } else {
         setError(data.message || "Login failed. Please check your credentials.");
       }

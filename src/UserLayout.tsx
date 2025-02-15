@@ -24,6 +24,9 @@ import UserSparesPurchaseInvoice from './components/Crm/User/UserSpares/UserPurc
 import UserInventory from './components/Crm/User/UserSpares/UserInventory'
 import UserJobCard from './components/Crm/User/UserSpares/UserJobCard'
 
+import UserLoanManagement from './components/Crm/User/UserLoan/UserLoanManagement'
+import UserAttendance from './components/Crm/User/UserAttendance'
+
 interface LayoutProps {
   darkMode: boolean;
   setDarkMode: (dark: boolean) => void;
@@ -95,6 +98,12 @@ const UserRoutes = ({ darkMode, setDarkMode }: LayoutProps) => {
               <Route path="/spares-services/inventory" element={<UserInventory/>} />
               <Route path="/spares-services/purchase-invoice" element={<UserSparesPurchaseInvoice/>} />
               <Route path="/spares-services/job-card" element={<UserJobCard/>} />
+
+              {/* Loan Management */}
+              <Route path="/loan/logs" element={<UserLoanManagement/>} />
+
+              {/* Attendance Management */}
+              <Route path="/attendance" element={<UserAttendance/>} />
 
             </Routes>
           </div>
