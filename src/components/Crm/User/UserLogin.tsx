@@ -10,17 +10,6 @@ interface Credentials {
 interface LoginResponse {
   message: string;
   token: string;
-  role?: string;
-  permissions?: {
-    id: number;
-    userId: number;
-    canManageERickshaw: boolean;
-    canManageBattery: boolean;
-    canManageSparesServices: boolean;
-    canManageLoan: boolean;
-    canManageAttendance: boolean;
-    canManageDashboard: boolean;
-  }[];
 }
 
 export default function CrmLogin() {
@@ -50,18 +39,12 @@ export default function CrmLogin() {
 
       const data: LoginResponse = await response.json();
 
-      if (response.ok) {
-        // Store token and auth status
+      if (response.ok && data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userAuthenticated", "true");
-
-        // Store permissions if available
-        if (data.permissions && data.permissions.length > 0) {
-          localStorage.setItem("userPermissions", JSON.stringify(data.permissions[0]));
-        }
-
-        // Navigate to dashboard
-        navigate("/dashboard");
+        
+        window.dispatchEvent(new Event('userLoggedIn'));
+        navigate('/e-rickshaw'); // Changed default route to /e-rickshaw
       } else {
         setError(data.message || "Login failed. Please check your credentials.");
       }
@@ -80,7 +63,6 @@ export default function CrmLogin() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Panel - Decorative */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3')] bg-cover bg-center mix-blend-overlay opacity-10"></div>
         <div className="relative w-full flex flex-col items-center justify-center p-12 text-white">
@@ -91,10 +73,8 @@ export default function CrmLogin() {
         </div>
       </div>
 
-      {/* Right Panel - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-gray-50 dark:bg-gray-900">
         <div className="w-full max-w-md space-y-8">
-          {/* Logo */}
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 shadow-lg mb-8">
               <LogIn className="w-10 h-10 text-white transform -rotate-12" />
@@ -216,7 +196,6 @@ export default function CrmLogin() {
               )}
             </button>
 
-            {/* Sample Credentials Card */}
             <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white">

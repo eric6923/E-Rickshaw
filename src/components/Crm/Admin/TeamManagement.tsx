@@ -1,16 +1,49 @@
 import React, { useState } from 'react';
 import { Download, Plus, Search, X, Users, Mail, UserCog, UserPlus, Pencil, Trash2 } from 'lucide-react';
+import axios from 'axios';
 
-function App() {
+interface TeamMember {
+  name: string;
+  email: string;
+  role: string;
+  createdDate: string;
+}
+
+interface FormData {
+  name: string;
+  email: string;
+  role: string;
+  password: string;
+  permissions: {
+    canManageERickshaw: boolean;
+    canManageBattery: boolean;
+    canManageSparesServices: boolean;
+    canManageLoan: boolean;
+    canManageAttendance: boolean;
+    canManageDashboard: boolean;
+  };
+}
+
+function UserTeam() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [teamMembers, setTeamMembers] = useState([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     role: '',
-    password: ''
+    password: '',
+    permissions: {
+      canManageERickshaw: false,
+      canManageBattery: false,
+      canManageSparesServices: false,
+      canManageLoan: false,
+      canManageAttendance: false,
+      canManageDashboard: false
+    }
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -21,11 +54,41 @@ function App() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Submitted Team Member Data:', formData);
-    setShowAddDialog(false);
+  const handlePermissionChange = (permission: keyof FormData['permissions']) => {
+    setFormData(prevState => ({
+      ...prevState,
+      permissions: {
+        ...prevState.permissions,
+        [permission]: !prevState.permissions[permission]
+      }
+    }));
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await axios.post('http://localhost:5000/auth/user/register', formData);
+      console.log('User created:', response.data);
+      setShowAddDialog(false);
+      // You would typically refresh the team members list here
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred while creating the user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const permissionsList = [
+    { key: 'canManageERickshaw', label: 'E-Rickshaw Management' },
+    { key: 'canManageBattery', label: 'Battery Management' },
+    { key: 'canManageSparesServices', label: 'Spares & Services' },
+    { key: 'canManageLoan', label: 'Loan Management' },
+    { key: 'canManageAttendance', label: 'Attendance Management' },
+    { key: 'canManageDashboard', label: 'Dashboard Access' }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -97,7 +160,21 @@ function App() {
                 ) : (
                   teamMembers.map((member, index) => (
                     <tr key={index}>
-                      {/* Render team member data here */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{index + 1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{member.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{member.email}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{member.role}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{member.createdDate}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                        <div className="flex gap-2">
+                          <button className="text-blue-600 hover:text-blue-800">
+                            <Pencil className="h-5 w-5" />
+                          </button>
+                          <button className="text-red-600 hover:text-red-800">
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -161,6 +238,11 @@ function App() {
                 <UserCog className="h-6 w-6 text-blue-600" />
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Add Team Member</h2>
               </div>
+              {error && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg">
+                  {error}
+                </div>
+              )}
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div>
@@ -172,6 +254,7 @@ function App() {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-gray-100 transition-all"
                       placeholder="Enter full name"
+                      required
                     />
                   </div>
                   <div>
@@ -183,6 +266,7 @@ function App() {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-gray-100 transition-all"
                       placeholder="Enter email address"
+                      required
                     />
                   </div>
                   <div>
@@ -192,10 +276,11 @@ function App() {
                       value={formData.role}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-gray-100 transition-all"
+                      required
                     >
                       <option value="">Select a role</option>
-                      <option value="admin">Admin</option>
-                      <option value="manager">User</option> 
+                      <option value="Manager">Manager</option>
+                      <option value="Employee">Employee</option>
                     </select>
                   </div>
                   <div>
@@ -207,7 +292,28 @@ function App() {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-gray-100 transition-all"
                       placeholder="Enter password"
+                      required
                     />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                      Permissions
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {permissionsList.map(({ key, label }) => (
+                        <div key={key} className="flex items-center gap-3">
+                          <select
+                            value={formData.permissions[key as keyof FormData['permissions']] ? 'yes' : 'no'}
+                            onChange={() => handlePermissionChange(key as keyof FormData['permissions'])}
+                            className="px-3 py-2 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-gray-100 transition-all"
+                          >
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                          </select>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <div className="mt-6 flex justify-end space-x-4">
@@ -215,14 +321,16 @@ function App() {
                     type="button"
                     onClick={() => setShowAddDialog(false)}
                     className="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    disabled={loading}
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit"
-                    className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors"
+                    className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={loading}
                   >
-                    Add Member
+                    {loading ? 'Creating...' : 'Add Member'}
                   </button>
                 </div>
               </form>
@@ -234,4 +342,4 @@ function App() {
   );
 }
 
-export default App;
+export default UserTeam;
