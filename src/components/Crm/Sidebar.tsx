@@ -4,49 +4,38 @@ import {
   LayoutDashboard, 
   LogOut, 
   X, 
-  Users, 
   ChevronDown,
   ChevronRight,
   FileText, 
-  AlertTriangle,
   FolderOpen,
-  HandCoins,
   Banknote,
-  Landmark,
   Truck,
   ShoppingCart,
   FileOutput,
-  CreditCard,
-  FileSpreadsheet,
-  FileCheck,
-  File,
   DollarSign,
   Wallet,
   Receipt,
-  Battery,
-  BatteryCharging,
   BatteryFull,
-  Settings,
   Wrench,
   Package,
   CarFront,
   Files,
   UserPlus,
-  UserCheck
+  UserCheck,
+  FileSpreadsheet,
+  FileCheck
 } from "lucide-react";
 
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   currentPath: string;
-  userRole: string | null;
 }
 
 export default function Sidebar({
   sidebarOpen,
   setSidebarOpen,
   currentPath,
-  userRole = "team",
 }: SidebarProps) {
   const navigate = useNavigate();
   const [openSection, setOpenSection] = useState<string | null>(null);
@@ -63,141 +52,122 @@ export default function Sidebar({
     };
   }, [sidebarOpen]);
 
-  const roleBasePath = `/crm/${userRole}`;
-
-  const managementSections = (userRole === 'admin' || userRole === 'manager') && [
+  const managementSections = [
     {
       title: "E-Rickshaw",
       icon: <Truck size={20} />,
-      mainPath: `${roleBasePath}/e-rickshaw`,
+      mainPath: "/admin/e-rickshaw",
       subLinks: [
         {
           title: "Document",
           icon: <Files size={18} />,
-          path: `${roleBasePath}/e-rickshaw/document`
+          path: "/admin/e-rickshaw/document"
         },
         {
           title: "Quotation",
           icon: <Receipt size={18} />,
-          path: `${roleBasePath}/e-rickshaw/quotation`
+          path: "/admin/e-rickshaw/quotation"
         },
         {
           title: "Temporary Driving",
           icon: <CarFront size={18} />,
-          path: `${roleBasePath}/e-rickshaw/temporarydriving`
+          path: "/admin/e-rickshaw/temporarydriving"
         },
         {
           title: "Purchase Invoice",
           icon: <FileText size={18} />,
-          path: `${roleBasePath}/e-rickshaw/purchase-invoice`
+          path: "/admin/e-rickshaw/purchase-invoice"
         },
         {
           title: "Sales Order",
           icon: <ShoppingCart size={18} />,
-          path: `${roleBasePath}/e-rickshaw/sales-order`
+          path: "/admin/e-rickshaw/sales-order"
         },
         {
           title: "Loan File Transfer",
           icon: <FileOutput size={18} />,
-          path: `${roleBasePath}/e-rickshaw/loan-file-transfer`
+          path: "/admin/e-rickshaw/loan-file-transfer"
         },
         {
           title: "Payment Details",
           icon: <DollarSign size={18} />,
-          path: `${roleBasePath}/e-rickshaw/payment-details`
+          path: "/admin/e-rickshaw/payment-details"
         },
         {
           title: "Loan Details",
           icon: <Wallet size={18} />,
-          path: `${roleBasePath}/e-rickshaw/loan-details`
+          path: "/admin/e-rickshaw/loan-details"
         },
         {
           title: "Sales Invoice",
           icon: <Receipt size={18} />,
-          path: `${roleBasePath}/e-rickshaw/sales-invoice`
+          path: "/admin/e-rickshaw/sales-invoice"
         },
         {
           title: "RC Book",
           icon: <FileCheck size={18} />,
-          path: `${roleBasePath}/e-rickshaw/rc-book`
+          path: "/admin/e-rickshaw/rc-book"
         }
       ]
     },
     {
       title: "Battery",
       icon: <BatteryFull size={20} />,
-      mainPath: `${roleBasePath}/battery`,
+      mainPath: "/admin/battery",
       subLinks: [
         {
           title: "Purchase Invoice",
           icon: <FileText size={18} />,
-          path: `${roleBasePath}/battery/purchase-invoice`
+          path: "/admin/battery/purchase-invoice"
         },
         {
           title: "Sales Invoice",
           icon: <Receipt size={18} />,
-          path: `${roleBasePath}/battery/sales-invoice`
+          path: "/admin/battery/sales-invoice"
         },
         {
           title: "Service Battery Replacement",
           icon: <FileSpreadsheet size={18} />,
-          path: `${roleBasePath}/battery/service-replacement`
+          path: "/admin/battery/service-replacement"
         }
       ]
     },
     {
       title: "Spares & Services",
       icon: <Wrench size={20} />,
-      mainPath: `${roleBasePath}/spares-services`,
+      mainPath: "/admin/spares-services",
       subLinks: [
         {
           title: "Inventory",
           icon: <Package size={18} />,
-          path: `${roleBasePath}/spares-services/inventory`
+          path: "/admin/spares-services/inventory"
         },
         {
           title: "Purchase Invoice",
           icon: <FileText size={18} />,
-          path: `${roleBasePath}/spares-services/purchase-invoice`
+          path: "/admin/spares-services/purchase-invoice"
         },
         {
           title: "Job Card",
           icon: <FileSpreadsheet size={18} />,
-          path: `${roleBasePath}/spares-services/job-card`
+          path: "/admin/spares-services/job-card"
         }
       ]
     },
-    // {
-    //   title: "Defaulter Management",
-    //   icon: <Landmark size={20} />,
-    //   mainPath: `${roleBasePath}/clients`,
-    //   subLinks: [
-    //     {
-    //       title: "Logs",
-    //       icon: <FolderOpen size={18} />,
-    //       path: `${roleBasePath}/clients`
-    //     },
-    //     {
-    //       title: "Reports",
-    //       icon: <FileText size={18} />,
-    //       path: `/crm/admin/reports/default`
-    //     }
-    //   ]
-    // },
     {
       title: "Loan Management",
       icon: <Banknote size={20} />,
-      mainPath: `${roleBasePath}/contacts`,
+      mainPath: "/admin/loan",
       subLinks: [
         {
           title: "Logs",
           icon: <FolderOpen size={18} />,
-          path: `${roleBasePath}/contacts`
+          path: "/admin/loan/logs"
         },
         {
           title: "Reports",
           icon: <FileText size={18} />,
-          path: `/crm/admin/reports/loans`
+          path: "/admin/loan/reports"
         }
       ]
     }
@@ -213,9 +183,8 @@ export default function Sidebar({
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"} 
         w-[280px] shadow-lg z-50`}
     >
-      {/* Header */}
       <div className="flex items-center justify-between p-6 h-16 mt-6">
-        <Link to={roleBasePath} className="flex items-center">
+        <Link to="/admin/dashboard" className="flex items-center">
           <span className="ml-3 text-xl font-bold text-blue-600 dark:text-white">
             Vaishali Traders
           </span>
@@ -228,12 +197,11 @@ export default function Sidebar({
         </button>
       </div>
 
-      {/* Navigation - Added responsive spacing */}
       <nav className="mt-5 px-4 pb-36 lg:pb-36 overflow-y-auto h-[calc(100vh-88px)]">
         <Link
-          to={roleBasePath}
+          to="/admin/dashboard"
           className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors mb-1.5 lg:mb-2 ${
-            currentPath === roleBasePath
+            currentPath === "/admin/dashboard"
               ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
               : "text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700"
           }`}
@@ -243,13 +211,12 @@ export default function Sidebar({
           <span className="ml-3 font-medium">Dashboard</span>
         </Link>
 
-        {/* Management Sections with Nested Links */}
-        {managementSections && managementSections.map((section) => (
+        {managementSections.map((section) => (
           <div key={section.title} className="mb-2">
             <div 
               onClick={() => toggleSection(section.title)}
               className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors cursor-pointer ${
-                currentPath === section.mainPath
+                currentPath.startsWith(section.mainPath)
                   ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
                   : "text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700"
               }`}
@@ -263,7 +230,7 @@ export default function Sidebar({
               <div className="pl-6 mt-1">
                 {section.subLinks.map((link) => (
                   <Link
-                    key={link.title}
+                    key={link.path}
                     to={link.path}
                     className={`flex items-center w-full p-2 rounded-lg transition-colors mb-1 ${
                       currentPath === link.path
@@ -272,7 +239,7 @@ export default function Sidebar({
                     }`}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    {link.icon || <div className="w-5 h-5 opacity-0" />}
+                    {link.icon}
                     <span className="ml-3 font-medium text-sm">{link.title}</span>
                   </Link>
                 ))}
@@ -280,23 +247,27 @@ export default function Sidebar({
             )}
           </div>
         ))}
+
         <Link
-  to={"/crm/admin/attendance"}
-  className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors mb-1.5 lg:mb-2 text-gray-600 font-medium dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700`}
-  onClick={() => setSidebarOpen(false)} 
->
+          to="/admin/attendance"
+          className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors mb-1.5 lg:mb-2 ${
+            currentPath === "/admin/attendance"
+              ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+              : "text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700"
+          }`}
+          onClick={() => setSidebarOpen(false)}
+        >
           <UserCheck size={20} />
-          <span className="ml-3 ">Attendance Register</span>
+          <span className="ml-3 font-medium">Attendance Register</span>
         </Link>
 
-        {/* Bottom Actions */}
-        <div className="fixed bottom-0 left-0 w-[280px] p-3 lg:p-4 border-gray-200 bg-white dark:bg-gray-800">
-        <button
+        <div className="fixed bottom-0 left-0 w-[280px] p-4 border-t border-gray-200 bg-white dark:bg-gray-800">
+          <button
             onClick={() => {
-              navigate("/crm/admin/team"), setSidebarOpen(false)
+              navigate("/admin/team");
+              setSidebarOpen(false);
             }}
-            className="flex items-center w-full p-2.5 lg:p-3  hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-            
+            className="flex items-center w-full p-2.5 lg:p-3 text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg mb-2"
           >
             <UserPlus size={20} />
             <span className="ml-3">Team Management</span>
@@ -305,8 +276,7 @@ export default function Sidebar({
             onClick={() => {
               localStorage.removeItem("crmAuthenticated");
               localStorage.removeItem("token");
-              localStorage.removeItem("userRole");
-              navigate("/crm/login");
+              navigate("/admin");
               setSidebarOpen(false);
             }}
             className="flex items-center w-full p-2.5 lg:p-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"

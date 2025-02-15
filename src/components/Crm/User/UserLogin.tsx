@@ -7,6 +7,22 @@ interface Credentials {
   password: string;
 }
 
+interface LoginResponse {
+  message: string;
+  token: string;
+  role?: string;
+  permissions?: {
+    id: number;
+    userId: number;
+    canManageERickshaw: boolean;
+    canManageBattery: boolean;
+    canManageSparesServices: boolean;
+    canManageLoan: boolean;
+    canManageAttendance: boolean;
+    canManageDashboard: boolean;
+  }[];
+}
+
 export default function CrmLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +37,7 @@ export default function CrmLogin() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://totem-consultancy-beta.vercel.app/api/auth/adminlogin", {
+      const response = await fetch("http://localhost:5000/auth/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,13 +48,20 @@ export default function CrmLogin() {
         }),
       });
 
-      const data = await response.json();
+      const data: LoginResponse = await response.json();
 
       if (response.ok) {
+        // Store token and auth status
         localStorage.setItem("token", data.token);
-        localStorage.setItem("crmAuthenticated", "true");
-        localStorage.setItem("userRole", "admin");
-        navigate("/admin/dashboard");
+        localStorage.setItem("userAuthenticated", "true");
+
+        // Store permissions if available
+        if (data.permissions && data.permissions.length > 0) {
+          localStorage.setItem("userPermissions", JSON.stringify(data.permissions[0]));
+        }
+
+        // Navigate to dashboard
+        navigate("/dashboard");
       } else {
         setError(data.message || "Login failed. Please check your credentials.");
       }
@@ -51,8 +74,8 @@ export default function CrmLogin() {
   };
 
   const getCredentials = (): Credentials => ({
-    email: "totemmanagement@gmail.com",
-    password: "Totem@123"
+    email: "employee@gmail.com",
+    password: "test"
   });
 
   return (
@@ -63,7 +86,7 @@ export default function CrmLogin() {
         <div className="relative w-full flex flex-col items-center justify-center p-12 text-white">
           <h1 className="text-5xl font-bold mb-6">Welcome to Vaishali Traders</h1>
           <p className="text-xl text-blue-100 max-w-md text-center">
-            Access your dashboard to manage tasks, track progress, and grow your business.
+            Access your dashboard to manage tasks
           </p>
         </div>
       </div>
@@ -77,7 +100,7 @@ export default function CrmLogin() {
               <LogIn className="w-10 h-10 text-white transform -rotate-12" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Login to Admin Dashboard
+              Login to User Dashboard
             </h2>
             <p className="mt-3 text-gray-600 dark:text-gray-400">
               Enter your credentials to access your account
@@ -197,7 +220,7 @@ export default function CrmLogin() {
             <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                  Sample Admin Credentials
+                  Sample User Credentials
                 </h3>
                 <span className="px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 rounded-full">
                   Demo Only

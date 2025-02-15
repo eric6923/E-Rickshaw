@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import CrmLayout from './CrmLayout';
+import UserLayout from './UserLayout';
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -16,10 +17,16 @@ export default function App() {
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-white text-black'}`}>
       <Routes>
-        {/* CRM Routes */}
+        {/* Admin Routes */}
         <Route
-          path="/crm/*"
+          path="/admin/*"
           element={<CrmLayout darkMode={darkMode} setDarkMode={setDarkMode} />}
+        />
+        
+        {/* User Routes */}
+        <Route
+          path="/*"
+          element={<UserLayout darkMode={darkMode} setDarkMode={setDarkMode} />}
         />
       </Routes>
     </div>

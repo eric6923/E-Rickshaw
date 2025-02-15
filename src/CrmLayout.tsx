@@ -1,18 +1,8 @@
 import { useState } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
-import CrmLogin from './components/Crm/Login';
 import Navbar from './components/Crm/Navbar';
 import Sidebar from "./components/Crm/Sidebar";
-
 import Dashboard from './components/Crm/Admin/Dashboard';
-
-// Import new management components
-import AdminClientManagement from './components/Crm/Admin/DefaulterManagent';
-import AdminContactManagement from './components/Crm/Admin/LoanManagement';
-import Settings from './components/Crm/Admin/Settings'
-import DefaulterReport from "./components/Crm/Admin/DefaulterReport";
-import LoanReports from "./components/Crm/Admin/LoanReports";
-
 
 import PurchaseInvoice from './components/Crm/Admin/ERickshaw/PurchaseInvoice';
 import SalesOrder from './components/Crm/Admin/ERickshaw/SalesOrder';
@@ -21,49 +11,39 @@ import PaymentDetails from './components/Crm/Admin/ERickshaw/PaymentDetails';
 import LoanDetails from './components/Crm/Admin/ERickshaw/LoanDetails';
 import SalesInvoice from './components/Crm/Admin/ERickshaw/SalesInvoice';
 import RcBook from './components/Crm/Admin/ERickshaw/RcBook';
-
-import BatteryPurchaseInvoice from './components/Crm/Admin/Battery/PurchaseInvoice'
-import BatterySalesInvoice from './components/Crm/Admin/Battery/SalesInvoive'
-import BatteryServiceReplacement from './components/Crm/Admin/Battery/ServiceReplacement'
-
-import Inventory from "./components/Crm/Admin/Spares&Services/Inventory";
-import PurchaseInvoiceSpares from './components/Crm/Admin/Spares&Services/PurchaseInvoiceSpares'
-import JobCard from "./components/Crm/Admin/Spares&Services/JobCard";
 import Documents from "./components/Crm/Admin/ERickshaw/Document";
 import Quotation from "./components/Crm/Admin/ERickshaw/Quotation";
 import TemporaryDriving from "./components/Crm/Admin/ERickshaw/TemporaryDriving";
+
+import BatteryPurchaseInvoice from './components/Crm/Admin/Battery/PurchaseInvoice';
+import BatterySalesInvoice from './components/Crm/Admin/Battery/SalesInvoive';
+import BatteryServiceReplacement from './components/Crm/Admin/Battery/ServiceReplacement';
+
+import Inventory from "./components/Crm/Admin/Spares&Services/Inventory";
+import PurchaseInvoiceSpares from './components/Crm/Admin/Spares&Services/PurchaseInvoiceSpares';
+import JobCard from "./components/Crm/Admin/Spares&Services/JobCard";
+
+import LoanManagement from './components/Crm/Admin/LoanManagement'
+import LoanReports from './components/Crm/Admin/LoanReports'
+
 import TeamManagement from "./components/Crm/Admin/TeamManagement";
 import AttendanceRegister from "./components/Crm/Admin/AttendanceRegister";
+
+import Login from './components/Crm/Login'
 
 interface LayoutProps {
   darkMode: boolean;
   setDarkMode: (dark: boolean) => void;
 }
 
-type UserRole = "admin" | "manager" | "team" | null;
-
-const ROLE_BASE_PATHS: Record<NonNullable<UserRole>, string> = {
-  admin: "/crm/admin",
-  manager: "/crm/manager",
-  team: "/crm/team"
-};
-
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = localStorage.getItem("crmAuthenticated") === "true" && localStorage.getItem("token");
   const location = useLocation();
-  const userRole = localStorage.getItem("userRole") as UserRole;
 
   if (!isAuthenticated) {
     localStorage.removeItem("crmAuthenticated");
     localStorage.removeItem("token");
-    localStorage.removeItem("userRole");
-    return <Navigate to="/crm/login" state={{ from: location }} replace />;
-  }
-
-  const currentPath = location.pathname;
-  const pathParts = currentPath.split('/');
-  if (pathParts[1] === 'crm' && pathParts[2] && pathParts[2] !== userRole && pathParts[2] !== 'login') {
-    return <Navigate to={ROLE_BASE_PATHS[userRole || "admin"]} replace />;
+    return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
@@ -72,7 +52,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const CrmRoutes = ({ darkMode, setDarkMode }: LayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const userRole = localStorage.getItem("userRole") as UserRole;
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -87,7 +66,6 @@ const CrmRoutes = ({ darkMode, setDarkMode }: LayoutProps) => {
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         currentPath={location.pathname}
-        userRole={userRole}
       />
 
       <div className="flex-1 flex flex-col transition-all duration-300 lg:ml-[280px]">
@@ -96,54 +74,46 @@ const CrmRoutes = ({ darkMode, setDarkMode }: LayoutProps) => {
           setSidebarOpen={setSidebarOpen}
           darkMode={darkMode}
           setDarkMode={setDarkMode}
-          userRole={userRole}
         />
 
         <main className={`flex-1 overflow-auto pt-16 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
           <div className="p-4 lg:p-6">
             <Routes>
-              {/* Admin Routes */}
-              <Route path="/admin" element={<Dashboard />} />
-              <Route path="/admin/clients" element={<AdminClientManagement />} />
-              <Route path="/admin/reports/default" element={<DefaulterReport />} />
-              <Route path="/admin/reports/loans" element={<LoanReports />} />
-              <Route path="/admin/contacts" element={<AdminContactManagement />} />
-              <Route path="/admin/settings" element={<Settings />} />
-
+              {/* Dashboard */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              
               {/* E-Rickshaw Routes */}
-              <Route path="/admin/e-rickshaw/document" element={<Documents />} />
-              <Route path="/admin/e-rickshaw/quotation" element={<Quotation />} />
-              <Route path="/admin/e-rickshaw/temporarydriving" element={<TemporaryDriving />} />
-              <Route path="/admin/e-rickshaw/purchase-invoice" element={<PurchaseInvoice />} />
-              <Route path="/admin/e-rickshaw/sales-order" element={<SalesOrder />} />
-              <Route path="/admin/e-rickshaw/loan-file-transfer" element={<LoanFileTransfer />} />
-              <Route path="/admin/e-rickshaw/payment-details" element={<PaymentDetails />} />
-              <Route path="/admin/e-rickshaw/loan-details" element={<LoanDetails />} />
-              <Route path="/admin/e-rickshaw/sales-invoice" element={<SalesInvoice />} />
-              <Route path="/admin/e-rickshaw/rc-book" element={<RcBook />} />
+              <Route path="/e-rickshaw/document" element={<Documents />} />
+              <Route path="/e-rickshaw/quotation" element={<Quotation />} />
+              <Route path="/e-rickshaw/temporarydriving" element={<TemporaryDriving />} />
+              <Route path="/e-rickshaw/purchase-invoice" element={<PurchaseInvoice />} />
+              <Route path="/e-rickshaw/sales-order" element={<SalesOrder />} />
+              <Route path="/e-rickshaw/loan-file-transfer" element={<LoanFileTransfer />} />
+              <Route path="/e-rickshaw/payment-details" element={<PaymentDetails />} />
+              <Route path="/e-rickshaw/loan-details" element={<LoanDetails />} />
+              <Route path="/e-rickshaw/sales-invoice" element={<SalesInvoice />} />
+              <Route path="/e-rickshaw/rc-book" element={<RcBook />} />
 
               {/* Battery Routes */}
-              <Route path="/admin/battery/purchase-invoice" element={<BatteryPurchaseInvoice />} />
-              <Route path="/admin/battery/sales-invoice" element={<BatterySalesInvoice />} />
-              <Route path="/admin/battery/service-replacement" element={<BatteryServiceReplacement />} />
+              <Route path="/battery/purchase-invoice" element={<BatteryPurchaseInvoice />} />
+              <Route path="/battery/sales-invoice" element={<BatterySalesInvoice />} />
+              <Route path="/battery/service-replacement" element={<BatteryServiceReplacement />} />
 
-              <Route path="/admin/spares-services/inventory" element={<Inventory />} />
-              <Route path="/admin/spares-services/purchase-invoice" element={<PurchaseInvoiceSpares />} />
-              <Route path="/admin/spares-services/job-card" element={<JobCard />} />
+              {/* Spares & Services Routes */}
+              <Route path="/spares-services/inventory" element={<Inventory />} />
+              <Route path="/spares-services/purchase-invoice" element={<PurchaseInvoiceSpares />} />
+              <Route path="/spares-services/job-card" element={<JobCard />} />
 
-              <Route path="/admin/team" element={<TeamManagement />} />
-              <Route path="/admin/attendance" element={<AttendanceRegister />} />
+              {/* Loan Management Route */}
+              <Route path="/loan/logs" element={<LoanManagement />} />
+              <Route path="/loan/reports" element={<LoanReports />} />
+
+              {/* Team & Attendance */}
+              <Route path="/team" element={<TeamManagement />} />
+              <Route path="/attendance" element={<AttendanceRegister />} />
 
               {/* Default Redirect */}
-              <Route
-                path="*"
-                element={
-                  <Navigate
-                    to={ROLE_BASE_PATHS[userRole || "admin"]}
-                    replace
-                  />
-                }
-              />
+              <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
             </Routes>
           </div>
         </main>
@@ -153,27 +123,16 @@ const CrmRoutes = ({ darkMode, setDarkMode }: LayoutProps) => {
 };
 
 export default function CrmLayout({ darkMode, setDarkMode }: LayoutProps) {
-  const userRole = localStorage.getItem("userRole") as UserRole;
-
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Navigate to={ROLE_BASE_PATHS[userRole || "admin"]} replace />
-          </ProtectedRoute>
-        }
-      />
-
       <Route
         path="/login"
         element={
           localStorage.getItem("crmAuthenticated") === "true" && 
           localStorage.getItem("token") ? (
-            <Navigate to={ROLE_BASE_PATHS[userRole || "admin"]} replace />
+            <Navigate to="/admin/dashboard" replace />
           ) : (
-            <CrmLogin />
+            <Login/> // Replace with actual Login component
           )
         }
       />
