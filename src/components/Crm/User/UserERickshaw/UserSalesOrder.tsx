@@ -295,8 +295,8 @@ const SalesOrder = () => {
           <div className="mt-1 space-y-1">
             <p className="text-sm">Salesman: {order.salesmanName}</p>
             <p className="text-sm">Agent: {order.agentName}</p>
-            <p className="text-sm">Financer: {order.financerName}</p>
-            <p className="text-sm">Finance By: {order.financeBy}</p>
+            {/* <p className="text-sm">Financer: {order.financerName}</p>
+            <p className="text-sm">Finance By: {order.financeBy}</p> */}
           </div>
         </div>
 
@@ -436,8 +436,8 @@ const SalesOrder = () => {
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Down Payment</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Salesman Name</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Agent Name</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Financer Name</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-34 whitespace-nowrap">Finance By</th>
+                      {/* <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Financer Name</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-34 whitespace-nowrap">Finance By</th> */}
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-34 whitespace-nowrap">Actions</th>
                     </tr>
                   </thead>
@@ -469,8 +469,8 @@ const SalesOrder = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.downPayment.toFixed(2)}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.salesmanName}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.agentName}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financerName}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financeBy}</td>
+                        {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financerName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financeBy}</td> */}
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                           <div className="flex gap-2">
                             <button
@@ -779,28 +779,7 @@ const SalesOrder = () => {
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Financer Name</label>
-                    <input
-                      type="text"
-                      name="financerName"
-                      value={formData.financerName}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Finance By</label>
-                    <input
-                      type="text"
-                      name="financeBy"
-                      value={formData.financeBy}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      required
-                    />
-                  </div>
+      
                 </div>
                 <div className="mt-6 flex justify-end space-x-4">
                   <button 

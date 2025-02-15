@@ -164,11 +164,11 @@ export default function Sidebar({
           icon: <FolderOpen size={18} />,
           path: "/admin/loan/logs"
         },
-        {
-          title: "Reports",
-          icon: <FileText size={18} />,
-          path: "/admin/loan/reports"
-        }
+        // {
+        //   title: "Reports",
+        //   icon: <FileText size={18} />,
+        //   path: "/admin/loan/reports"
+        // }
       ]
     }
   ];
