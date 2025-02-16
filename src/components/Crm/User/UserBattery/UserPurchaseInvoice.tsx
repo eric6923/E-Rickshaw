@@ -148,7 +148,7 @@ const PurchaseInvoice = () => {
         </div>
 
         {/* Action Buttons and Search */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4">
           <div className="w-full sm:w-[39%] ml-0 sm:ml-96">
             <div className="relative ml-0 sm:ml-36">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
@@ -188,7 +188,7 @@ const PurchaseInvoice = () => {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Item Name</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Model Name</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Serial Number</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                {/* <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th> */}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -213,7 +213,7 @@ const PurchaseInvoice = () => {
                     <td className="px-6 py-4 whitespace-nowrap">{purchase.modelName}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{purchase.serialNumber}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex gap-2">
+                      {/* <div className="flex gap-2">
                         <button
                           onClick={() => handleEdit(purchase)}
                           className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
@@ -226,7 +226,7 @@ const PurchaseInvoice = () => {
                         >
                           <Trash2 className="h-5 w-5" />
                         </button>
-                      </div>
+                      </div> */}
                     </td>
                   </tr>
                 ))

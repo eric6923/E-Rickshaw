@@ -110,7 +110,7 @@ function UserTeam() {
           </div>
 
           {/* Action Buttons and Search */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4">
             <div className="relative w-full sm:w-[300px]">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
