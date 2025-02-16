@@ -37,10 +37,11 @@ const SalesOrder = () => {
   const [orders, setOrders] = useState<SalesOrder[]>([]);
   const [editingOrder, setEditingOrder] = useState<SalesOrder | null>(null);
   const [loading, setLoading] = useState(false);
+  const [nextBookingNo, setNextBookingNo] = useState(1);
   
   const [formData, setFormData] = useState({
     deliveryDate: '',
-    bookingNo: '',
+    bookingNo: '1',
     customerName: '',
     address: '',
     phoneNumber1: '',
@@ -72,7 +73,17 @@ const SalesOrder = () => {
       setLoading(true);
       const response = await fetch('https://dataentry-one.vercel.app/rickshaw/salesorder');
       const data = await response.json();
-      setOrders(data);
+      
+      // Sort orders by bookingNo to find the highest number
+      const sortedOrders = [...data].sort((a, b) => parseInt(b.bookingNo) - parseInt(a.bookingNo));
+      const highestBookingNo = sortedOrders.length > 0 ? parseInt(sortedOrders[0].bookingNo) : 0;
+      setNextBookingNo(highestBookingNo + 1);
+      
+      // Sort orders by bookingNo for display
+      const orderedData = data.sort((a: SalesOrder, b: SalesOrder) => 
+        parseInt(a.bookingNo) - parseInt(b.bookingNo)
+      );
+      setOrders(orderedData);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
@@ -105,7 +116,8 @@ const SalesOrder = () => {
         ...formData,
         deliveryDate: new Date(formData.deliveryDate).toISOString(),
         salesValue: parseFloat(formData.salesValue),
-        downPayment: parseFloat(formData.downPayment)
+        downPayment: parseFloat(formData.downPayment),
+        bookingNo: editingOrder ? formData.bookingNo : nextBookingNo.toString()
       };
       
       const response = await fetch(url, {
@@ -117,11 +129,11 @@ const SalesOrder = () => {
       });
 
       if (response.ok) {
-        fetchOrders();
+        await fetchOrders();
         setShowAddDialog(false);
         setFormData({
           deliveryDate: '',
-          bookingNo: '',
+          bookingNo: nextBookingNo.toString(),
           customerName: '',
           address: '',
           phoneNumber1: '',
@@ -195,7 +207,7 @@ const SalesOrder = () => {
         });
 
         if (response.ok) {
-          fetchOrders();
+          await fetchOrders();
         }
       } catch (error) {
         console.error('Error deleting order:', error);
@@ -209,12 +221,11 @@ const SalesOrder = () => {
     order.chassisNumber.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const MobileCard = ({ order, index }: { order: SalesOrder; index: number }) => (
+  const MobileCard = ({ order }: { order: SalesOrder }) => (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-4">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <span className="text-sm text-gray-500 dark:text-gray-400">#{index + 1}</span>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{order.bookingNo}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Booking #{order.bookingNo}</h3>
         </div>
         <div className="flex gap-2">
           <button
@@ -241,6 +252,7 @@ const SalesOrder = () => {
             <div className="grid grid-cols-2 gap-2">
               <p className="text-sm">Ph: {order.phoneNumber1}</p>
               {order.phoneNumber2 && <p className="text-sm">Alt: {order.phoneNumber2}</p>}
+              
             </div>
           </div>
         </div>
@@ -295,8 +307,6 @@ const SalesOrder = () => {
           <div className="mt-1 space-y-1">
             <p className="text-sm">Salesman: {order.salesmanName}</p>
             <p className="text-sm">Agent: {order.agentName}</p>
-            {/* <p className="text-sm">Financer: {order.financerName}</p>
-            <p className="text-sm">Finance By: {order.financeBy}</p> */}
           </div>
         </div>
 
@@ -328,7 +338,7 @@ const SalesOrder = () => {
           </div>
 
           {/* Action Buttons and Search */}
-          <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 md:mr-8">
+          <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 md:mr-10">
             <div className="w-full sm:w-[39%]">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -347,7 +357,7 @@ const SalesOrder = () => {
                   setEditingOrder(null);
                   setFormData({
                     deliveryDate: '',
-                    bookingNo: '',
+                    bookingNo: nextBookingNo.toString(),
                     customerName: '',
                     address: '',
                     phoneNumber1: '',
@@ -401,8 +411,8 @@ const SalesOrder = () => {
             <>
               {/* Mobile View */}
               <div className="md:hidden p-4">
-                {filteredOrders.map((order, index) => (
-                  <MobileCard key={order.id} order={order} index={index} />
+                {filteredOrders.map((order) => (
+                  <MobileCard key={order.id} order={order} />
                 ))}
               </div>
 
@@ -411,9 +421,8 @@ const SalesOrder = () => {
                 <table className="w-full min-w-[2000px]">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">S.No</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Delivery Date</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Booking No</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Delivery Date</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Customer Name</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Address</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Phone 1</th>
@@ -436,17 +445,14 @@ const SalesOrder = () => {
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Down Payment</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Salesman Name</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Agent Name</th>
-                      {/* <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Financer Name</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-34 whitespace-nowrap">Finance By</th> */}
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-34 whitespace-nowrap">Actions</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {filteredOrders.map((order, index) => (
+                    {filteredOrders.map((order) => (
                       <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{index + 1}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900 dark:text-gray-100">{order.bookingNo}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{new Date(order.deliveryDate).toLocaleDateString()}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.bookingNo}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.customerName}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.address}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.phoneNumber1}</td>
@@ -469,8 +475,6 @@ const SalesOrder = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.downPayment.toFixed(2)}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.salesmanName}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.agentName}</td>
-                        {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financerName}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{order.financeBy}</td> */}
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                           <div className="flex gap-2">
                             <button
@@ -515,21 +519,22 @@ const SalesOrder = () => {
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Delivery Date</label>
-                    <input
-                      type="date"
-                      name="deliveryDate"
-                      value={formData.deliveryDate} onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      required
-                    />
-                  </div>
-                  <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Booking No</label>
                     <input
                       type="text"
                       name="bookingNo"
-                      value={formData.bookingNo}
+                      value={editingOrder ? formData.bookingNo : nextBookingNo}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-100"
+                      readOnly
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Delivery Date</label>
+                    <input
+                      type="date"
+                      name="deliveryDate"
+                      value={formData.deliveryDate}
+                      
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       required
@@ -576,7 +581,6 @@ const SalesOrder = () => {
                       value={formData.phoneNumber2}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      required
                     />
                   </div>
                   <div>
@@ -779,7 +783,6 @@ const SalesOrder = () => {
                       required
                     />
                   </div>
-      
                 </div>
                 <div className="mt-6 flex justify-end space-x-4">
                   <button 

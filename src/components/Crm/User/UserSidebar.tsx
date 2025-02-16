@@ -217,11 +217,6 @@ export default function UserSidebar({
           icon: <FolderOpen size={18} />,
           path: "/loan/logs"
         },
-        // {
-        //   title: "Reports",
-        //   icon: <FileText size={18} />,
-        //   path: "/loan/reports"
-        // }
       ]
     }
   ];

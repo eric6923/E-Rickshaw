@@ -205,8 +205,8 @@ function App() {
         </div>
 
         {/* Transactions and Defaulters Tables */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Current Month Transactions */}
+        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+         
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-all duration-300">
             <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -260,7 +260,7 @@ function App() {
             </div>
           </div>
 
-          {/* Current Month Defaulters */}
+        
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-all duration-300">
             <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -315,7 +315,7 @@ function App() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
