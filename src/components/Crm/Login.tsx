@@ -21,7 +21,7 @@ export default function CrmLogin() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://totem-consultancy-beta.vercel.app/api/auth/adminlogin", {
+      const response = await fetch("https://dataentry-one.vercel.app/auth/admin/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,8 +51,8 @@ export default function CrmLogin() {
   };
 
   const getCredentials = (): Credentials => ({
-    email: "totemmanagement@gmail.com",
-    password: "Totem@123"
+    email: "admin123@gmail.com",
+    password: "admin@123"
   });
 
   return (

@@ -70,7 +70,7 @@ function UserTeam() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/auth/user/register', formData);
+      const response = await axios.post('https://dataentry-one.vercel.app/auth/user/register', formData);
       console.log('User created:', response.data);
       setShowAddDialog(false);
       // You would typically refresh the team members list here
