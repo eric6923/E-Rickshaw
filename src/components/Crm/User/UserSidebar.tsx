@@ -346,7 +346,7 @@ export default function UserSidebar({
       </div>
 
       <nav className="mt-5 px-4 pb-36 lg:pb-36 overflow-y-auto h-[calc(100vh-160px)]">
-        {userPermissions.canManageDashboard && currentPath !== '/dashboard' && (
+        {userPermissions.canManageDashboard && (
           <Link
             to="/dashboard"
             className={`flex items-center w-full p-2.5 lg:p-3 rounded-lg transition-colors mb-1.5 lg:mb-2 ${
